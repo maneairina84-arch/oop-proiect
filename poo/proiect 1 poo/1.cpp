@@ -13,13 +13,12 @@ class Player {
     int* resurse;
 public:
     Player (); // constructor default
-    Player (char* name, int points); // c cu atribute
+    Player (char* name, int points, int noCards); // c cu atribute // no cards??????????
     Player (const Player &obj); // copy constructor
     Player& operator=(const Player &obj); //operatorul egal
     ~Player(); //destructor
 };
 int Player:: noPlayers=0;
-
 Player::Player(): id(noPlayers++) {
     name= new char[4];
     strcpy(name,"N/A");
