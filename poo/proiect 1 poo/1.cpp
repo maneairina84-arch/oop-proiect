@@ -26,7 +26,7 @@ Player::Player(): id(noPlayers++) {
     noCards=0;
     resurse= nullptr;
 }
-Player:: Player (char* name, int points): id(noPlayers++) {
+Player:: Player (char* name, int points, int noCards): id(noPlayers++) {
     this-> name= new char[strlen(name)+1];
     strcpy(this-> name, name);
     this->points= points;
@@ -70,16 +70,16 @@ Player& Player::operator=(const Player &obj) {
     return *this;
 }
 Player:: ~Player() {
-    if (this->name =nullptr) {
+    if (this->name !=nullptr) {
         delete this->name;
     }
-    if (this->resurse =nullptr) {
+    if (this->resurse !=nullptr) {
         delete [] this->resurse;
     }
 }
 
 int main (){
-    Player p1("Andrei", 10);
+    Player p1("Andrei", 10, 5);
     Player p2;
     p2 = p1;
     cout << "Jucator creat cu succes!";
