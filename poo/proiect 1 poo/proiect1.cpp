@@ -5,7 +5,9 @@
 //
 
 #include <iostream>
-#include "string.h"
+#include <string.h>
+#include <ctime>
+#include<cstdlib>
 
 using namespace std;
 
@@ -299,6 +301,71 @@ public:
         }
         return "Jocul poate incepe!";
     }
+    int displayDice()
+{
+        // Generăm numărul (asigură-te că generator și distribution sunt definite)
+        int dieRoll = rand()%6 +1;
+
+        if (dieRoll == 1) {
+            cout << " ------- " << endl;
+            cout << "|       |" << endl;
+            cout << "|   o   |" << endl;
+            cout << "|       |" << endl;
+            cout << " ------- " << endl;
+        }
+        else if (dieRoll == 2) {
+            cout << " ------- " << endl;
+            cout << "| o     |" << endl;
+            cout << "|       |" << endl;
+            cout << "|     o |" << endl;
+            cout << " ------- " << endl;
+        }
+        else if (dieRoll == 3) {
+            cout << " ------- " << endl;
+            cout << "|     o |" << endl;
+            cout << "|   o   |" << endl;
+            cout << "| o     |" << endl;
+            cout << " ------- " << endl;
+        }
+        else if (dieRoll == 4) {
+            cout << " ------- " << endl;
+            cout << "| o   o |" << endl;
+            cout << "|       |" << endl;
+            cout << "| o   o |" << endl;
+            cout << " ------- " << endl;
+        }
+        else if (dieRoll == 5) {
+            cout << " ------- " << endl;
+            cout << "| o   o |" << endl;
+            cout << "|   o   |" << endl;
+            cout << "| o   o |" << endl;
+            cout << " ------- " << endl;
+        }
+        else {
+            cout << " ------- " << endl;
+            cout << "| o   o |" << endl;
+            cout << "| o   o |" << endl;
+            cout << "| o   o |" << endl;
+            cout << " ------- " << endl;
+        }
+
+        return dieRoll;
+}
+    void rundaNoua() {
+        cout << "\n>>> INCEPE RUNDA " << this->rundaCurenta << " <<<" << endl;
+        cout << "Jucatorul arunca zarurile..." << endl;
+        int z1 =displayDice();
+        int z2= displayDice();
+        int sumaTotala = z1+z2;
+        cout << "Suma totala a zarurilor este: "<<sumaTotala << endl;
+        // if (sumaTotala==7) {
+        //     cout<<"S-a dat 7, fiecare jucator pierde jumatate de carti"<<endl;
+        // }
+        cout << "Se impart resurse pentru numarul " << sumaTotala << "." << endl;
+        this->rundaCurenta++;
+        cout << "------------------------------------------" << endl;
+    }
+
 };
 int Game::noGame=0;
 Game::Game (): id(noGame++) {
@@ -308,7 +375,7 @@ Game::Game (): id(noGame++) {
     durataTura=0.0;
     gameMap= nullptr;
 }
-Game:: Game(int noParticipants, int liniiHarta, int coloaneHarta, int double durataTura): id(noGame++) {
+Game:: Game(int noParticipants, int liniiHarta, int coloaneHarta, double durataTura): id(noGame++) {
     this->noParticipants=noParticipants;
     this->durataTura=durataTura;
     this-> rundaCurenta=1;
@@ -341,7 +408,7 @@ Game::Game(const Game &obj) :id(noGame++) {
         }
     }
     else {
-        obj.Participants=nullptr;
+        this->Participants=nullptr;
     }
 }
 Game & Game::operator=(const Game &obj) {
@@ -370,7 +437,7 @@ Game & Game::operator=(const Game &obj) {
         }
     }
     else {
-        obj.Participants=nullptr;
+        this->Participants=nullptr;
     }
     return *this;
 }
@@ -386,8 +453,6 @@ Game::~Game() {
 }
 
 int main() {
-
-
 
 }
 
