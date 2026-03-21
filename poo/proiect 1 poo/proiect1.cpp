@@ -175,8 +175,104 @@ Construction& Construction::operator=(const Construction &obj) {
 Construction::~Construction() {
 
 }
+class Map {
+    static int noMaps; // cate harti avem (trebuie la fnalul jocului sa fie 0 ca sa nu avem meory leaks)
+    const int id;
+    static int noAll;
+    int linii;
+    int coloane;
+    TipResursa** grid; //matricea care va fi formata din resurse
+    int** jetoane; // nr pe care le pui peste resurse
+public:
+    Map();
+    Map(int linii, int coloane);
+    Map(const Map &obj);
+    Map& operator=(const Map &obj);
+    ~Map();
+};
+int Map::noMaps=0;
+int Map::noAll=0;
+Map:: Map (): id(noAll++) {
+    noMaps++;
+    linii= 0;
+    coloane= 0;
+    grid= nullptr;
+    jetoane= nullptr;
+}
+Map :: Map(): id(noAll++) {
+    noMaps++;
+    linii=4;
+    coloane=5;
+    grid=new TipResursa*[linii];
+    jetoane=new int*[linii];
+    for (int i=0; i<linii; i++) {
+        grid[i]= new TipResursa*[i];
+        jetoane[i]= new int*[coloane];
+    }
+}
+Map:: Map ():id(noAll++) {
+    noMaps++;
+    linii=obj.linii;
+    coloane=obj.coloane;
+    if (obj.grid != nullptr && linii>0 && coloane>0) {
+        grid= new TipResursa*[linii];
+        jetoane= new int*[linii];
+        for (int i=0; i<linii; i++) {
+            grid[i]= new TipResursa[coloane];
+            jetoane[i]= new int[coloane];
+            for (int j=0; j<coloane; j++) {
+                grid[i][j]= obj.grid[i][j];
+                jetoane[i][j]= obj.jetoane[i][j];
+            }
+        }
+    }
+    else {
+        grid=nullptr;
+        jetoane=nullptr;
+    }
+
+}
+Map & Map::operator=(const Map &obj) {
+    if (this == &obj) {
+        return *this;
+    }
+    if (grid!=nullptr) {
+        delete [] grid;
+        delete [] jetoane;
+    }
+    this->linii= obj.linii;
+    this->coloane= obj.coloane;
+    if (obj.grid != nullptr && linii>0 && coloane>0) {
+        grid= new TipResursa*[linii];
+        jetoane= new int*[linii];
+        for (int i=0; i<linii; i++) {
+            grid[i]= new TipResursa[coloane];
+            jetoane[i]= new int[coloane];
+            for (int j=0; j<coloane; j++) {
+                grid[i][j]= obj.grid[i][j];
+                jetoane[i][j]= obj.jetoane[i][j];
+            }
+        }
+    }
+    else {
+        this->grid=nullptr;
+        this->jetoane=nullptr;
+    }
+
+
+}
+Map:: ~Map() {
+    if (this->grid!=nullptr) {
+        delete [] this->grid;
+    }
+    if (this->jetoane!=nullptr) {
+        delete [] this->jetoane;
+    }
+}
 
 int main() {
+
+
 
 }
 
