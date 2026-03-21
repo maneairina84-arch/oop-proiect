@@ -199,18 +199,18 @@ Map:: Map (): id(noAll++) {
     grid= nullptr;
     jetoane= nullptr;
 }
-Map :: Map(): id(noAll++) {
+Map :: Map(int linii, int coloane): id(noAll++){
     noMaps++;
     linii=4;
     coloane=5;
     grid=new TipResursa*[linii];
     jetoane=new int*[linii];
     for (int i=0; i<linii; i++) {
-        grid[i]= new TipResursa*[i];
-        jetoane[i]= new int*[coloane];
+        grid[i]= new TipResursa[coloane];
+        jetoane[i]= new int[coloane];
     }
 }
-Map:: Map ():id(noAll++) {
+Map:: Map (const Map &obj):id(noAll++) {
     noMaps++;
     linii=obj.linii;
     coloane=obj.coloane;
@@ -237,6 +237,10 @@ Map & Map::operator=(const Map &obj) {
         return *this;
     }
     if (grid!=nullptr) {
+        for (int i=0; i<linii; i++) {
+            delete [] grid[i];
+            delete [] jetoane[i];
+        }
         delete [] grid;
         delete [] jetoane;
     }
@@ -258,16 +262,127 @@ Map & Map::operator=(const Map &obj) {
         this->grid=nullptr;
         this->jetoane=nullptr;
     }
+    return *this;
 
 
 }
 Map:: ~Map() {
-    if (this->grid!=nullptr) {
-        delete [] this->grid;
+    if (grid!=nullptr) {
+        for (int i=0; i<linii; i++) {
+            delete [] grid[i];
+            delete [] jetoane[i];
+        }
     }
-    if (this->jetoane!=nullptr) {
-        delete [] this->jetoane;
+    delete [] grid;
+    delete [] jetoane;
+    Map::noMaps--;
+}
+
+class Game {
+    static int noGame;
+    const int id;
+    int noParticipants; // apartin jocului actual vs noplayers playerii creati in total
+    Player** Participants;
+    int rundaCurenta;
+    double durataTura;//timpul alocat fiecarui jucator (secunde)
+    Map* gameMap;
+    //ceva cu float
+public:
+    Game();
+    Game(int noParticipants, int liniiHarta, int coloaneHarta, double durataTura);
+    Game(const Game &obj);
+    Game & operator=(const Game &obj);
+    ~Game();
+    string poateIncepeJocul() {
+        if (noParticipants<2) {
+            return "Nu sunt suficienti jucatori, trebuie sa fie minim 2.";
+        }
+        return "Jocul poate incepe!";
     }
+};
+int Game::noGame=0;
+Game::Game (): id(noGame++) {
+    noParticipants=0;
+    Participants= nullptr;
+    rundaCurenta=0;
+    durataTura=0.0;
+    gameMap= nullptr;
+}
+Game:: Game(int noParticipants, int liniiHarta, int coloaneHarta, int double durataTura): id(noGame++) {
+    this->noParticipants=noParticipants;
+    this->durataTura=durataTura;
+    this-> rundaCurenta=1;
+    this-> gameMap= new Map(liniiHarta,coloaneHarta);
+    if (this->noParticipants>=2) {
+        this->Participants=new Player*[this->noParticipants];
+        for (int i=0; i<this->noParticipants; i++) {
+            this->Participants[i]= nullptr;
+        }
+    }
+    else {
+        this->Participants=nullptr;
+    }
+}
+
+Game::Game(const Game &obj) :id(noGame++) {
+    this->noParticipants=obj.noParticipants;
+    this->rundaCurenta=obj.rundaCurenta;
+    this->durataTura=obj.durataTura;
+    if (obj.gameMap !=nullptr) {
+        this->gameMap=new Map(*obj.gameMap);//copeim obiect de tip map deci se apeleaza copy constrcutorul de la map
+    }
+    else {
+        this->gameMap=nullptr;
+    }
+    if (obj.Participants!=nullptr) {
+        this->Participants=new Player*[this->noParticipants];
+        for (int i=0; i<this->noParticipants; i++) {
+            this->Participants[i]=obj.Participants[i];
+        }
+    }
+    else {
+        obj.Participants=nullptr;
+    }
+}
+Game & Game::operator=(const Game &obj) {
+    if (this == &obj) {
+        return *this;
+    }
+    if (this->gameMap!=nullptr) {
+        delete [] this->gameMap;
+    }
+    if (obj.Participants!=nullptr) {
+        delete [] this->Participants;
+    }
+    this->noParticipants=obj.noParticipants;
+    this->rundaCurenta=obj.rundaCurenta;
+    this->durataTura=obj.durataTura;
+    if (obj.gameMap !=nullptr) {
+        this->gameMap=new Map(*obj.gameMap);//copeim obiect de tip map deci se apeleaza copy constrcutorul de la map
+    }
+    else {
+        this->gameMap=nullptr;
+    }
+    if (obj.Participants!=nullptr) {
+        this->Participants=new Player*[this->noParticipants];
+        for (int i=0; i<this->noParticipants; i++) {
+            this->Participants[i]=obj.Participants[i];
+        }
+    }
+    else {
+        obj.Participants=nullptr;
+    }
+    return *this;
+}
+
+Game::~Game() {
+    if (this->gameMap!=nullptr) {
+        delete this->gameMap;
+    }
+    if (this->Participants!=nullptr) {
+        delete [] this->Participants;
+    }
+    Game::noGame--;
 }
 
 int main() {
