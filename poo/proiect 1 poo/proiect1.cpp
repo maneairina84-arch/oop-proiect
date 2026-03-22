@@ -31,11 +31,15 @@ class Player {
     int oraseTotal=4;
     int drumuriTotal=15;
 public:
+    //cpnstructori &destructor
     Player (); // constructor default
     Player (char* name, int points, int noCards); // c cu atribute // no cards??????????
     Player (const Player &obj); // copy constructor
     Player& operator=(const Player &obj); //operatorul egal
     ~Player(); //destructor
+
+    friend ostream& operator<<(ostream& os, const Player& obj);
+
     bool poateConstruiSat() {
         return sateTotal>0;
     }
@@ -123,6 +127,31 @@ Player:: ~Player() {
     if (this->resurse !=nullptr) {
         delete [] this->resurse;
     }
+}
+
+//operator<<
+
+ostream& operator<<(ostream& os, const Player& obj) {
+    os<<"========================================" << endl;
+    os<<"STATISTICI JUCATOR (ID: " << obj.id << ")" << endl;
+    os<<"========================================" << endl;
+    os<<"NUME: "<< obj.name<<endl;
+    os<<"PUNCTE: "<< obj.points<<endl;
+    os<<"CARTI AVUTE: "<< obj.noCards<<endl;
+    os << "----------------------------------------" << endl;
+    os<<"CONSTRUCTII"<<endl;
+    os<<"   Sate ramase: "<<obj.sateTotal<<endl;
+    os<<"   Orase ramase "<<obj.oraseTotal<<endl;
+    os<<"   Drmuri ramase"<<obj.drumuriTotal<<endl;
+    os<<"---------------------------------------" << endl;
+    if (obj.resurse!=nullptr && obj.noCards>0) {
+        os<<"RESURSE: ";
+        for (int i=0; i<obj.noCards; i++) {
+            os<<obj.resurse[i]<<" ";
+        }
+        os<<endl;
+    }
+    return os;
 }
 
 enum TipConstructie {
