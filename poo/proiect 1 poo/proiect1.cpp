@@ -19,7 +19,12 @@ enum TipResursa {
     PIATRA,
     DESERT// pt desert
 };
-
+enum TipConstructie {
+    NONE,
+    SAT,
+    ORAS,
+    DRUM
+};
 class Player {
     static int noPlayers;
     char* name;
@@ -63,6 +68,9 @@ public:
 
     friend ostream& operator<<(ostream& os, const Player& obj);
     friend istream& operator>>(istream& is, Player& obj);
+
+    bool cePoateConstrui(TipConstructie tip);
+    void consumaResurse(TipConstructie tip);
 
     bool poateConstruiSat() {
         return sateTotal>0;
@@ -285,12 +293,7 @@ istream& operator>>(istream& is, Player& obj) {
     }
     return is;
 }
-enum TipConstructie {
-    NONE,
-    SAT,
-    ORAS,
-    DRUM
-};
+
 class Construction {
     TipConstructie tip;
     static int noTotal;
@@ -418,10 +421,20 @@ Map :: Map(int linii, int coloane): id(noAll++){
     noMaps++;
     this->linii=linii;
     this->coloane=coloane;
-    this->grid=nullptr;
-    this->jetoane=nullptr;
-    this->cladiri=nullptr;
+    grid = new TipResursa*[linii];
+    jetoane = new int*[linii];
+    cladiri = new Construction*[linii];
+    for (int i = 0; i < linii; i++) {
+        grid[i] = new TipResursa[coloane];
+        jetoane[i] = new int[coloane];
+        cladiri[i] = new Construction[coloane];
+        for(int j = 0; j < coloane; j++) {
+            grid[i][j] = DESERT; // default
+            jetoane[i][j] = 0;
+        }
     }
+}
+
 
 Map:: Map (const Map &obj):id(noAll++) {
     noMaps++;
@@ -603,6 +616,7 @@ public:
     void setGameMap(Map* gameMap);
     void setParticipants(int noParticipants, Player** Participants);
 
+    void construieste(int idJucator, TipConstructie tip, int x, int y);
     string poateIncepeJocul() {
         if (noParticipants<2) {
             return "Nu sunt suficienti jucatori, trebuie sa fie minim 2.";
@@ -665,9 +679,16 @@ public:
         int z1 =displayDice();
         int z2= displayDice();
         int sumaTotala = z1+z2;
+        do {
+            z1 = (rand() % 6) + 1;
+            z2 = (rand() % 6) + 1;
+            sumaTotala = z1 + z2;
+        } while (sumaTotala == 7); // Dacă dă 7 se repeta
+
+        cout << "Jucatorul a aruncat zarurile..." << endl;
         cout << "Suma totala a zarurilor este: "<<sumaTotala << endl;
         // if (sumaTotala == 7) {
-        cout << "[EVENIMENT] S-a dat 7! Hotul se muta." << endl;
+        // cout << "[EVENIMENT] S-a dat 7! Hotul se muta." << endl;
         // for (int i = 0; i < noParticipants; i++) {
         //     if (Participants[i] != nullptr && Participants[i]->getNoCards() > 7) {
         //         cout << "  ! Jucatorul " << Participants[i]->getName()
@@ -833,7 +854,7 @@ istream & operator>>(istream &is, Game &obj) {
 
 
 // VAD CE POT SA CONSTRUIESC (oras, sate, drum)
-bool Player:: cePoateConstrui(TipConstructie tip) {
+bool Player::cePoateConstrui(TipConstructie tip) {
     //DRUM lemn+caramida
     //SAT lemn+oaie+fan+caramida
     //ORAS 3 pietre+ 2 fan
@@ -952,75 +973,101 @@ void Game::construieste (int idJucator, TipConstructie tip, int x, int y) {
         cout <<om->getName() << " a plasat un DRUM la" <<x<<","<<y<< endl;
     }
 }
-int main() {
-    // 0. Pregatim generatorul de numere aleatorii
-    srand(time(0));
 
-    cout << "========== TESTARE SISTEM COMPLET CATAN ==========" << endl;
-
-    // 1. TESTARE CLASA PLAYER
-    // Cream doi jucatori si le setam niste date initiale
-    Player* p1 = new Player((char*)"Irina", 2, 0); // 2 puncte
-    Player* p2 = new Player((char*)"Matei", 1, 0); // 1 punct
-
-    cout << "1. Jucatori creati:\n" << *p1 << *p2 << endl;
-
-    // 2. TESTARE CLASA CONSTRUCTION
-    // Cream o asezare (SAT) pentru Irina
-    Construction c1(SAT, p1);
-    cout << "2. Test Constructie: " << c1 << endl;
-
-    // 3. TESTARE CLASA GAME & CONFIGURARE
-    // 2 participanti, harta 3x3, durata tura 45 secunde
-    Game joc(2, 3, 3, 45.0);
-
-    // Incarcam jucatorii in vectorul de participanti din Game
-    Player* lista[] = { p1, p2 };
-    joc.setParticipants(2, lista);
-
-    // 4. TESTARE CLASA MAP
-    // Generam harta folosind operatorul >> (care pune resurse si jetoane random)
-    if (joc.getGameMap() != nullptr) {
-        // Simulam cin >> harta (fara sa mai introducem de la tastatura, folosind logica de rand())
-        cin >> *(joc.getGameMap());
+class Menu {
+    Game* joc;
+public:
+    Menu() {
+        joc=nullptr;
+        srand(time(0)); //vr doar valoarea
     }
+    ~Menu() {
+        if (joc!=nullptr) {
+            delete joc;
+        }
+    }
+    void run() {
+        int optiune = -1;
+        while (optiune != 0) {
+            cout << "\n===============================" << endl;
+            cout << "       CATAN - MAIN MENU       " << endl;
+            cout << "===============================" << endl;
+            cout << "1. Creare Joc Nou (Configurare)" << endl;
+            cout << "2. Afisare Stare Curenta (Harta & Jucatori)" << endl;
+            cout << "3. Arunca Zarurile " << endl;
+            cout << "4. Construieste (Sat/Oras/Drum)" << endl;
+            cout << "0. Iesire" << endl;
+            cout << "Alege optiunea: ";
+            cin >> optiune;
 
-    cout << "3. Harta a fost generata:" << endl;
-    cout << *(joc.getGameMap());
+            switch (optiune) {
+                case 1:
+                    initializare();
+                    break;
+                case 2:
+                    if (joc) {
+                        cout<<*(joc->getGameMap());
+                        for (int i = 0; i < joc->getNoParticipants(); i++) {
+                            cout << *(joc->getParticipants()[i]);
+                        }
 
-    // 5. TESTARE LOGICA DE JOC (RUNDA)
-    // Afisam starea curenta (Operatorul << minimalist)
-    cout << "4. Stare joc inainte de runda: " << joc << endl;
+                    }else cout<<"Creati joc mai intai!"<<endl;
+                    break;
+                case 3:
+                    if (joc)
+                        joc->rundaNoua();
+                    else cout << "Creati un joc mai intai!" << endl;
+                    break;
+                case 4:
+                    if (joc)
+                        gestionareConstructie();
+                    else cout << "Creati un joc mai intai!" << endl;
+                    break;
+                case 0:
+                    cout << "Pa" << endl;
+                    break;
+            }
 
-    // Simulam primele 2 runde
-    joc.rundaNoua();
-    joc.rundaNoua();
+        }
+    }
+    private:
+    void initializare() {
+        int nrP, Lharta, Charta;
+        double durata;
+        cout << "Numar jucatori: "; cin >> nrP;
+        cout << "Linii harta: "; cin >> Lharta;
+        cout << "Coloane harta: "; cin >> Charta;
+        cout << "Durata tura (in secunde): "; cin >> durata;
 
-    // 6. AFISARE FINALA (Verificam daca runda a crescut)
-    cout << "\n5. Stare joc dupa runde: " << joc << endl;
+        if (joc!=nullptr)
+            delete joc;
+        joc=new Game(nrP, Lharta, Charta, durata);
+        cin>>*(joc->getGameMap()); //op >>
 
-    // 7. CURATENIE (Destructori)
-    // Obiectele Player au fost facute cu new, deci trebuie sterse
-    delete p1;
-    delete p2;
+        Player** lista = new Player*[nrP];
+        for (int i = 0; i < nrP; i++) {
+            char nume[50];
+            cout << "Nume jucator " << i << ": ";
+            cin >> nume;
+            lista[i] = new Player(nume, 0, 0);
+            TipResursa start[] = {LEMN, CARAMIDA, OAIE, FAN, PIATRA, PIATRA, FAN}; // fiecare jucator primeste cate o resursa din fiecare categorie
+            lista[i]->setResurse(7, start);
+    }
+        joc->setParticipants(nrP, lista);
+        cout << "\n Jocul a fost configurat!" << endl;
+}
+    void gestionareConstructie() {
+        int id, tipInt, x, y;
+        cout << "ID Jucator: "; cin >> id;
+        cout << "Ce vrei sa faci? (1:SAT, 2:ORAS, 3:DRUM): "; cin >> tipInt;
+        cout << "Coordonate (linie coloana): "; cin >> x >> y;
 
-    cout << "\n================ TEST INCHEIAT ================" << endl;
+        joc->construieste(id, (TipConstructie)tipInt, x, y);
+    }};
 
+int main() {
+    Menu menu;
+    menu.run();
     return 0;
 }
-
-// //Player
-// Name, id, colour, timestamp
-//
-// Constructie (drum, asezare)
-//
-// Harta (random resurse)
-//
-// Resurse (enum)
-//
-// Game (zar, lista cărți jucător)
-//
-// + clasa meniu in proiect extra ((construcție tor default dra nu trb neaparat și ceilalți constructori)
-//overload pe opertaori
-
-////!!!!!!!!!!de alineat clasa map
+/
