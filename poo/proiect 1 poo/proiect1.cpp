@@ -30,7 +30,9 @@ class Player {
     int sateTotal=5;
     int oraseTotal=4;
     int drumuriTotal=15;
+    bool esteActiv;
 public:
+
     //cpnstructori &destructor
     Player (); // constructor default
     Player (char* name, int points, int noCards); // c cu atribute // no cards??????????
@@ -38,7 +40,29 @@ public:
     Player& operator=(const Player &obj); //operatorul egal
     ~Player(); //destructor
 
+    //getters
+    int getId() const;
+    const char* getName() const;
+    int getPoints() const;
+    int getNoCards() const;
+    const TipResursa* getResurse() const;
+    int getSateTotal() const;
+    int getOraseTotal() const;
+    int getDrumuriTotal() const;
+
+    //setters
+    void setName(char* name);
+    void setPoints(int points);
+    void setNoCards(int noCards);
+    void setSateTotal(int sateTotal);
+    void setOraseTotal(int oraseTotal);
+    void setDrumuriTotal(int drumuriTotal);
+    void setResurse(int noCards, TipResursa* resurse);
+    void setEsteActiv(bool esteActiv);
+
+
     friend ostream& operator<<(ostream& os, const Player& obj);
+    friend istream& operator>>(istream& is, Player& obj);
 
     bool poateConstruiSat() {
         return sateTotal>0;
@@ -64,9 +88,6 @@ public:
         if (drumuriTotal>0) {
             drumuriTotal--;
         }
-    }
-    void afisarePlayer() {
-        cout<<"Jucator: "<<name<<"| Id: "<<id<<"| Sate ramase "<<sateTotal<< "| Orase ramase "<< oraseTotal<< "| Drumuri ramase "<<drumuriTotal<<endl;
     }
 };
 int Player:: noPlayers=0;
@@ -129,8 +150,75 @@ Player:: ~Player() {
     }
 }
 
-//operator<<
+//getters
+int Player:: getId() const {
+    return id;
+}
+const char* Player:: getName() const {
+    return name;
+}
+int Player:: getPoints() const {
+    return points;
+}
+int Player:: getNoCards() const {
+    return noCards;
+}
 
+const TipResursa *Player::getResurse() const {
+    return resurse;
+}
+
+int Player::getSateTotal() const {
+    return sateTotal;
+}
+
+int Player::getOraseTotal() const {
+    return oraseTotal;
+}
+int Player::getDrumuriTotal() const {
+    return drumuriTotal;
+}
+
+//setters
+void Player:: setName (char* name) {
+    delete[] this->name;
+    this->name= new char[strlen(name)+1];
+    strcpy(this->name, name);
+}
+void Player:: setPoints (int points) {
+    this->points = points;
+}
+void Player:: setNoCards (int noCards) {
+    this->noCards = noCards;
+}
+void Player:: setSateTotal (int sateTotal) {
+    this->sateTotal = sateTotal;
+}
+void Player:: setOraseTotal (int oraseTotal) {
+    this->oraseTotal = oraseTotal;
+}
+void Player:: setDrumuriTotal (int drumuriTotal) {
+    this->drumuriTotal = drumuriTotal;
+}
+void Player:: setResurse (int noCards, TipResursa *resurse) {
+    delete[] this->resurse;
+    this->noCards = noCards;
+    if (resurse!=nullptr && noCards>0) {
+        this->resurse= new TipResursa[noCards];
+        for (int i=0; i<noCards; i++) {
+            this->resurse[i]= resurse[i];
+        }
+    }
+    else {
+        this->resurse=nullptr;
+    }
+}
+
+void Player::setEsteActiv(bool esteActiv) {
+    this->esteActiv = esteActiv;
+}
+
+//operator<<
 ostream& operator<<(ostream& os, const Player& obj) {
     os<<"========================================" << endl;
     os<<"STATISTICI JUCATOR (ID: " << obj.id << ")" << endl;
@@ -142,7 +230,7 @@ ostream& operator<<(ostream& os, const Player& obj) {
     os<<"CONSTRUCTII"<<endl;
     os<<"   Sate ramase: "<<obj.sateTotal<<endl;
     os<<"   Orase ramase "<<obj.oraseTotal<<endl;
-    os<<"   Drmuri ramase"<<obj.drumuriTotal<<endl;
+    os<<"   Drumuri ramase"<<obj.drumuriTotal<<endl;
     os<<"---------------------------------------" << endl;
     if (obj.resurse!=nullptr && obj.noCards>0) {
         os<<"RESURSE: ";
@@ -152,6 +240,11 @@ ostream& operator<<(ostream& os, const Player& obj) {
         os<<endl;
     }
     return os;
+}
+
+//operator>>
+istream& operator>>(istream& is, Player& obj) {
+    char
 }
 
 enum TipConstructie {
