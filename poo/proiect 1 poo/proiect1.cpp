@@ -304,15 +304,19 @@ public:
     Construction& operator=(const Construction &obj);
     ~Construction();
 
-    void afisareConstructie() {
-        cout << "Constructie Id: " << id << " | Tip: ";
-        if(tip == SAT) cout << "SAT";
-        else if(tip == ORAS) cout << "ORAS";
-        else if(tip == DRUM) cout << "DRUM";
-        else cout << "NONE";
-    }
-};
+    friend ostream& operator<<(ostream& os, const Construction& obj);
+    friend istream& operator>>(istream& is, Construction& obj);
 
+
+    //     void afisareConstructie() {
+    //         cout << "Constructie Id: " << id << " | Tip: ";
+    //         if(tip == SAT) cout << "SAT";
+    //         else if(tip == ORAS) cout << "ORAS";
+    //         else if(tip == DRUM) cout << "DRUM";
+    //         else cout << "NONE";
+    //     }
+    // };
+};
 int Construction::noTotal=0;
 Construction :: Construction(): id(noTotal++) {
     this-> proprietar= nullptr;
@@ -338,6 +342,28 @@ Construction& Construction::operator=(const Construction &obj) {
 Construction::~Construction() {
 
 }
+ostream& operator<<(ostream& os, const Construction& obj) {
+    const char* numeTip[]={"NONE", "SAT", "ORAS", "DRUM"};
+    os << " | Tip: " << numeTip[obj.tip];
+    if (obj.proprietar != nullptr) {
+        os << " | Proprietar: " << obj.proprietar->getName();
+    } else {
+        os << " | Fara proprietar";
+    }
+    return os;
+}istream& operator>>(istream& is, Construction& obj) {
+    int optiune;
+    cout<<"Tip constructie (0.NONE, 1:SAT, 2:ORAS, 3:DRUM): ";
+    is>>optiune;
+    if (optiune>=0 && optiune<=3) {
+        obj.tip=TipConstructie(optiune);
+    }
+    else {
+        obj.tip=NONE;
+    }
+    return is;
+}
+
 class Map {
     static int noMaps; // cate harti avem (trebuie la fnalul jocului sa fie 0 ca sa nu avem meory leaks)
     const int id;
@@ -601,9 +627,13 @@ public:
         int z2= displayDice();
         int sumaTotala = z1+z2;
         cout << "Suma totala a zarurilor este: "<<sumaTotala << endl;
-        // if (sumaTotala==7) {
-        //     cout<<"S-a dat 7, fiecare jucator pierde jumatate de carti"<<endl;
-        // }
+        // if (sumaTotala == 7) {
+        cout << "[EVENIMENT] S-a dat 7! Hotul se muta." << endl;
+        // for (int i = 0; i < noParticipants; i++) {
+        //     if (Participants[i] != nullptr && Participants[i]->getNoCards() > 7) {
+        //         cout << "  ! Jucatorul " << Participants[i]->getName()
+        //              << " trebuie sa piarda jumatate din carti." << endl;
+        //     }
         cout << "Se impart resurse pentru numarul " << sumaTotala << "." << endl;
         this->rundaCurenta++;
         cout << "------------------------------------------" << endl;
@@ -763,17 +793,60 @@ istream & operator>>(istream &is, Game &obj) {
 }
 
 int main() {
-    srand(time(0)); // Seteaza seed-ul pentru rand()
+    // 1. Initializare random pentru harta
+    srand(time(0));
 
-    Map m(3, 4); // Harta 3x4
-    cin >> m;    // Generare random
-    cout << m;   // Afisare
+    cout << "=== TESTARE SISTEM CATAN ===" << endl;
 
-    Player p1("Irina", 0, 0);
-    cout << p1;
+    // 2. Creare Jucatori (Testam Constructorul cu parametri)
+    // Folosim pointeri pentru ca Game-ul tau primeste Player**
+    Player* p1 = new Player((char*)"Irina", 0, 0);
+    Player* p2 = new Player((char*)"Matei", 0, 0);
 
-    Game g(2, 3, 4, 30.0);
-    g.rundaNoua(); // Testeaza zarurile
+    // 3. Creare Joc (Testam Constructorul Game)
+    // 2 jucatori, harta 3x3, durata initiala 0
+    Game joc(2, 3, 3, 0.0);
+
+    // 4. Testam Operatorul >> (Configuram durata tura)
+    cin >> joc;
+
+    // 5. Adaugam jucatorii in obiectul Game (Testam setParticipants)
+    Player* lista[] = { p1, p2 };
+    joc.setParticipants(2, lista);
+
+    // 6. Generam continutul hartii (Testam Operatorul >> de la Map prin getter)
+    // Deoarece gameMap este pointer in Game, il dereferentiem
+    if (joc.getGameMap() != nullptr) {
+        cin >> *(joc.getGameMap());
+    }
+
+    // 7. Afisare Stare Initiala (Testam Operatorul << minimalist de la Game)
+    cout << "\n--- DATE GENERALE JOC ---" << endl;
+    cout << joc;
+
+    // 8. Afisare Detalii (Testam restul claselor prin operatorii lor)
+    cout << "\n--- DETALII PARTICIPANTI ---" << endl;
+    for (int i = 0; i < joc.getNoParticipants(); i++) {
+        cout << *(joc.getParticipants()[i]); // Testam << de la Player
+    }
+
+    cout << "\n--- HARTA GENERATA ---" << endl;
+    cout << *(joc.getGameMap()); // Testam << de la Map
+
+    // 9. Simulare de joc (Testam logica de runda si zaruri)
+    cout << "\n--- SIMULARE RUNDE ---" << endl;
+    joc.rundaNoua();
+    joc.rundaNoua();
+
+    // 10. Afisare finala pentru a vedea ca runda a crescut
+    cout << "\n--- STARE FINALA ---" << endl;
+    cout << joc;
+
+    // Curatenie memorie (obiectele Player create cu new in main)
+    delete p1;
+    delete p2;
+
+    cout << "\nTest incheiat cu succes!" << endl;
 
     return 0;
 }
