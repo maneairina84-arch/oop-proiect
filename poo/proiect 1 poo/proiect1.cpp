@@ -285,7 +285,6 @@ istream& operator>>(istream& is, Player& obj) {
     }
     return is;
 }
-
 enum TipConstructie {
     NONE,
     SAT,
@@ -303,6 +302,9 @@ public:
     Construction(const Construction &obj);
     Construction& operator=(const Construction &obj);
     ~Construction();
+
+    TipConstructie getTip() const;
+    Player* getProprietar() const;
 
     friend ostream& operator<<(ostream& os, const Construction& obj);
     friend istream& operator>>(istream& is, Construction& obj);
@@ -342,6 +344,14 @@ Construction& Construction::operator=(const Construction &obj) {
 Construction::~Construction() {
 
 }
+
+TipConstructie Construction::getTip() const {
+    return this-> tip;
+}
+Player* Construction::getProprietar() const {
+    return this-> proprietar;
+}
+
 ostream& operator<<(ostream& os, const Construction& obj) {
     const char* numeTip[]={"NONE", "SAT", "ORAS", "DRUM"};
     os << " | Tip: " << numeTip[obj.tip];
@@ -372,6 +382,7 @@ class Map {
     int coloane;
     TipResursa** grid; //matricea care va fi formata din resurse
     int** jetoane; // nr pe care le pui peste resurse
+    Construction** cladiri;
 public:
     //constructori si destructor
     Map();
@@ -379,6 +390,16 @@ public:
     Map(const Map &obj);
     Map& operator=(const Map &obj);
     ~Map();
+
+    void alocaConstructii() {
+        cladiri=new Construction *[linii];
+        for (int i=0;i<linii;i++) {
+            cladiri[i]=new Construction[coloane];
+        }
+    }
+    void amplaseaza (int linii, int coloane, TipConstructie tip, Player* proprietar) {
+        cladiri[linii][coloane]=Construction(tip, proprietar);
+    }
 
     friend ostream& operator<<(ostream &os, const Map &obj);
     friend istream& operator>>(istream &is, Map &obj);
@@ -391,6 +412,7 @@ Map:: Map (): id(noAll++) {
     coloane= 0;
     grid= nullptr;
     jetoane= nullptr;
+    cladiri= nullptr;
 }
 Map :: Map(int linii, int coloane): id(noAll++){
     noMaps++;
@@ -398,6 +420,7 @@ Map :: Map(int linii, int coloane): id(noAll++){
     this->coloane=coloane;
     this->grid=nullptr;
     this->jetoane=nullptr;
+    this->cladiri=nullptr;
     }
 
 Map:: Map (const Map &obj):id(noAll++) {
@@ -407,18 +430,22 @@ Map:: Map (const Map &obj):id(noAll++) {
     if (obj.grid != nullptr && linii>0 && coloane>0) {
         grid= new TipResursa*[linii];
         jetoane= new int*[linii];
+        cladiri=new     Construction *[linii];
         for (int i=0; i<linii; i++) {
             grid[i]= new TipResursa[coloane];
             jetoane[i]= new int[coloane];
+            cladiri[i]= new Construction[coloane];
             for (int j=0; j<coloane; j++) {
                 grid[i][j]= obj.grid[i][j];
                 jetoane[i][j]= obj.jetoane[i][j];
+                cladiri[i][j]= obj.cladiri[i][j];
             }
         }
     }
     else {
         grid=nullptr;
         jetoane=nullptr;
+        cladiri=nullptr;
     }
 
 }
@@ -430,21 +457,26 @@ Map & Map::operator=(const Map &obj) {
         for (int i=0; i<linii; i++) {
             delete [] grid[i];
             delete [] jetoane[i];
+            delete [] cladiri[i];
         }
         delete [] grid;
         delete [] jetoane;
+        delete [] cladiri;
     }
     this->linii= obj.linii;
     this->coloane= obj.coloane;
     if (obj.grid != nullptr && linii>0 && coloane>0) {
         grid= new TipResursa*[linii];
         jetoane= new int*[linii];
+        cladiri=new Construction *[linii];
         for (int i=0; i<linii; i++) {
             grid[i]= new TipResursa[coloane];
             jetoane[i]= new int[coloane];
+            cladiri[i]= new Construction[coloane];
             for (int j=0; j<coloane; j++) {
                 grid[i][j]= obj.grid[i][j];
                 jetoane[i][j]= obj.jetoane[i][j];
+                cladiri[i][j]= obj.cladiri[i][j];
             }
         }
     }
@@ -461,10 +493,12 @@ Map:: ~Map() {
         for (int i=0; i<linii; i++) {
             delete [] grid[i];
             delete [] jetoane[i];
+            delete [] cladiri[i];
         }
     }
     delete [] grid;
     delete [] jetoane;
+    delete [] cladiri;
     Map::noMaps--;
 }
 
@@ -488,9 +522,14 @@ ostream& operator<<(ostream &os, const Map &obj) {
             else {
                 os<<"[???]";
             }
+            TipConstructie t=obj.cladiri[i][j].getTip();
+            if (t == SAT) os << ". ";
+            else if (t == ORAS) os << "..";
+            else if (t == DRUM) os << "==";
+            else os << "  ";
 
+            os<<" ";
         }
-
         os<<endl;
         //jetoanele cu numere
         for (int j=0; j<obj.coloane; j++) { //se alineaza nr sub cuvintele de deasupra
@@ -792,61 +831,180 @@ istream & operator>>(istream &is, Game &obj) {
     return is;
 }
 
+
+// VAD CE POT SA CONSTRUIESC (oras, sate, drum)
+bool Player:: cePoateConstrui(TipConstructie tip) {
+    //DRUM lemn+caramida
+    //SAT lemn+oaie+fan+caramida
+    //ORAS 3 pietre+ 2 fan
+    if (tip == SAT) {
+        int l = 0, c = 0, o = 0, f = 0;
+        for(int i = 0; i < noCards; i++) {
+            if(resurse[i] == LEMN) l++;
+            if(resurse[i] == CARAMIDA) c++;
+            if(resurse[i] == OAIE) o++;
+            if(resurse[i] == FAN) f++;
+        }
+        if (l >= 1 && c >= 1 && o >= 1 && f >= 1) {
+            return true;
+        }
+        else return false;
+    }
+    if (tip==ORAS) {
+        int p=0, f = 0;
+        for(int i = 0; i < noCards; i++) {
+            if(resurse[i] == PIATRA) p++;
+            if(resurse[i] == FAN) f++;
+        }
+        if (p >= 1 && f >= 1) {
+            return true;
+        }
+        else return false;
+    }
+    if (tip== DRUM) {
+        int l=0, c = 0;
+        for(int i = 0; i < noCards; i++) {
+            if(resurse[i] == LEMN) l++;
+            if(resurse[i] == CARAMIDA) c++;
+        }
+        if (l>=1 && c>=1) {
+            return true;
+        }
+        else return false;
+    }
+    return false;
+}
+
+//SE STERG RESURSELE CU CARE VREAU SA CONSTRUIESC (DACA POT)
+void Player:: consumaResurse (TipConstructie tip) {
+    int deStersL = 0, deStersC = 0, deStersO = 0, deStersF = 0, deStersP = 0;
+    if (tip == SAT) {
+        deStersL = 1; deStersC = 1; deStersO = 1; deStersF = 1;
+    }
+    else if (tip == ORAS) {
+        deStersP = 3; deStersF = 2;
+    }
+    else if (tip == DRUM) {
+        deStersL = 1; deStersC = 1;
+    }
+    int nrResurseNoi= noCards -(deStersL + deStersC + deStersO + deStersF + deStersP);
+    TipResursa* resurseNoi = new TipResursa[nrResurseNoi];
+    int k=0;
+    for (int i=0; i<noCards; i++) {
+        if (resurse[i] == LEMN && deStersL > 0) {
+            deStersL--; continue;
+        }
+        if (resurse[i] == CARAMIDA && deStersC > 0) {
+            deStersC--; continue;
+        }
+        if (resurse[i] == OAIE && deStersO > 0) {
+            deStersO--; continue;
+        }
+        if (resurse[i] == FAN && deStersF > 0) {
+            deStersF--; continue;
+        }
+        if (resurse[i] == PIATRA && deStersP > 0) {
+            deStersP--; continue;
+        }
+        resurseNoi[k++] = resurse[i];
+    }
+    delete[]resurse;
+    resurse=resurseNoi;
+    noCards = nrResurseNoi;
+}
+
+//CONSTRUIESC EFECTIV
+void Game::construieste (int idJucator, TipConstructie tip, int x, int y) {
+    Player* om= Participants[idJucator];
+
+    bool arePiese= false;
+    if (tip==SAT) {
+        arePiese=om->poateConstruiSat();
+    }
+    else if (tip==ORAS) {
+        arePiese=om->poateConstruiOras();
+    }
+    else if (tip==DRUM) {
+        arePiese=om->poateConstruiDrum();
+    }
+    if (!arePiese) {
+        cout<<om->getName()<<"nu mai are piese disponibile pentru acest tip"<<endl;
+        return;
+    }
+    if (!om->cePoateConstrui(tip)) {
+        cout<<om->getName()<<"nu mai are resurse disponibile pentru a construi acest tip"<<endl;
+        return;
+    }
+    om->consumaResurse(tip);
+    gameMap->amplaseaza(x,y,tip,om);
+    if (tip == SAT) {
+        om->aConstruiSat();
+        om->setPoints(om->getPoints() + 1);
+        cout <<om->getName() << " a plasat un SAT la" <<x<<","<<y<<" Scorul lui este: " << om->getPoints() << endl;
+    }
+    else if (tip == ORAS) {
+        om->aConstruiOras();
+        om->setPoints(om->getPoints() + 1); // Orasul valoreaza mai mult
+        cout <<om->getName() << " a plasat un ORAS la" <<x<<","<<y<<" Scorul lui este: " << om->getPoints() << endl;
+    }
+    else if (tip == DRUM) {
+        om->aConstruiDrum();
+        cout <<om->getName() << " a plasat un DRUM la" <<x<<","<<y<< endl;
+    }
+}
 int main() {
-    // 1. Initializare random pentru harta
+    // 0. Pregatim generatorul de numere aleatorii
     srand(time(0));
 
-    cout << "=== TESTARE SISTEM CATAN ===" << endl;
+    cout << "========== TESTARE SISTEM COMPLET CATAN ==========" << endl;
 
-    // 2. Creare Jucatori (Testam Constructorul cu parametri)
-    // Folosim pointeri pentru ca Game-ul tau primeste Player**
-    Player* p1 = new Player((char*)"Irina", 0, 0);
-    Player* p2 = new Player((char*)"Matei", 0, 0);
+    // 1. TESTARE CLASA PLAYER
+    // Cream doi jucatori si le setam niste date initiale
+    Player* p1 = new Player((char*)"Irina", 2, 0); // 2 puncte
+    Player* p2 = new Player((char*)"Matei", 1, 0); // 1 punct
 
-    // 3. Creare Joc (Testam Constructorul Game)
-    // 2 jucatori, harta 3x3, durata initiala 0
-    Game joc(2, 3, 3, 0.0);
+    cout << "1. Jucatori creati:\n" << *p1 << *p2 << endl;
 
-    // 4. Testam Operatorul >> (Configuram durata tura)
-    cin >> joc;
+    // 2. TESTARE CLASA CONSTRUCTION
+    // Cream o asezare (SAT) pentru Irina
+    Construction c1(SAT, p1);
+    cout << "2. Test Constructie: " << c1 << endl;
 
-    // 5. Adaugam jucatorii in obiectul Game (Testam setParticipants)
+    // 3. TESTARE CLASA GAME & CONFIGURARE
+    // 2 participanti, harta 3x3, durata tura 45 secunde
+    Game joc(2, 3, 3, 45.0);
+
+    // Incarcam jucatorii in vectorul de participanti din Game
     Player* lista[] = { p1, p2 };
     joc.setParticipants(2, lista);
 
-    // 6. Generam continutul hartii (Testam Operatorul >> de la Map prin getter)
-    // Deoarece gameMap este pointer in Game, il dereferentiem
+    // 4. TESTARE CLASA MAP
+    // Generam harta folosind operatorul >> (care pune resurse si jetoane random)
     if (joc.getGameMap() != nullptr) {
+        // Simulam cin >> harta (fara sa mai introducem de la tastatura, folosind logica de rand())
         cin >> *(joc.getGameMap());
     }
 
-    // 7. Afisare Stare Initiala (Testam Operatorul << minimalist de la Game)
-    cout << "\n--- DATE GENERALE JOC ---" << endl;
-    cout << joc;
+    cout << "3. Harta a fost generata:" << endl;
+    cout << *(joc.getGameMap());
 
-    // 8. Afisare Detalii (Testam restul claselor prin operatorii lor)
-    cout << "\n--- DETALII PARTICIPANTI ---" << endl;
-    for (int i = 0; i < joc.getNoParticipants(); i++) {
-        cout << *(joc.getParticipants()[i]); // Testam << de la Player
-    }
+    // 5. TESTARE LOGICA DE JOC (RUNDA)
+    // Afisam starea curenta (Operatorul << minimalist)
+    cout << "4. Stare joc inainte de runda: " << joc << endl;
 
-    cout << "\n--- HARTA GENERATA ---" << endl;
-    cout << *(joc.getGameMap()); // Testam << de la Map
-
-    // 9. Simulare de joc (Testam logica de runda si zaruri)
-    cout << "\n--- SIMULARE RUNDE ---" << endl;
+    // Simulam primele 2 runde
     joc.rundaNoua();
     joc.rundaNoua();
 
-    // 10. Afisare finala pentru a vedea ca runda a crescut
-    cout << "\n--- STARE FINALA ---" << endl;
-    cout << joc;
+    // 6. AFISARE FINALA (Verificam daca runda a crescut)
+    cout << "\n5. Stare joc dupa runde: " << joc << endl;
 
-    // Curatenie memorie (obiectele Player create cu new in main)
+    // 7. CURATENIE (Destructori)
+    // Obiectele Player au fost facute cu new, deci trebuie sterse
     delete p1;
     delete p2;
 
-    cout << "\nTest incheiat cu succes!" << endl;
+    cout << "\n================ TEST INCHEIAT ================" << endl;
 
     return 0;
 }
