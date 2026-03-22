@@ -17,7 +17,7 @@ enum TipResursa {
     OAIE,
     FAN,
     PIATRA,
-    NIMIC // pt desert
+    DESERT// pt desert
 };
 
 class Player {
@@ -347,11 +347,15 @@ class Map {
     TipResursa** grid; //matricea care va fi formata din resurse
     int** jetoane; // nr pe care le pui peste resurse
 public:
+    //constructori si destructor
     Map();
     Map(int linii, int coloane);
     Map(const Map &obj);
     Map& operator=(const Map &obj);
     ~Map();
+
+    friend ostream& operator<<(ostream &os, const Map &obj);
+    friend istream& operator>>(istream &is, Map &obj);
 };
 int Map::noMaps=0;
 int Map::noAll=0;
@@ -364,15 +368,12 @@ Map:: Map (): id(noAll++) {
 }
 Map :: Map(int linii, int coloane): id(noAll++){
     noMaps++;
-    linii=4;
-    coloane=5;
-    grid=new TipResursa*[linii];
-    jetoane=new int*[linii];
-    for (int i=0; i<linii; i++) {
-        grid[i]= new TipResursa[coloane];
-        jetoane[i]= new int[coloane];
+    this->linii=linii;
+    this->coloane=coloane;
+    this->grid=nullptr;
+    this->jetoane=nullptr;
     }
-}
+
 Map:: Map (const Map &obj):id(noAll++) {
     noMaps++;
     linii=obj.linii;
@@ -441,6 +442,69 @@ Map:: ~Map() {
     Map::noMaps--;
 }
 
+//operatorul<<
+ostream& operator<<(ostream &os, const Map &obj) {
+    os << "\n========= TABLA DE JOC CATAN =========" << endl;
+    if (obj.grid==nullptr) {
+        os<<"Harta nu a fost inca generata"<<endl;
+        os << "      ======================================" << endl;
+        return os;
+    }
+    //resursele
+    const char* numeResurse[] ={"LEMN","CARAMIDA","OAIE","FAN","PIATRA","DESERT"};
+    for (int i=0; i<obj.linii; i++) {
+        os<<" ";
+        for (int j=0; j<obj.coloane; j++) {
+            int res=int(obj.grid[i][j]);
+            if (res>=0 && res<=5) {
+                os<<"["<<numeResurse[res]<<"]";
+            }
+            else {
+                os<<"[???]";
+            }
+
+        }
+
+        os<<endl;
+        //jetoanele cu numere
+        for (int j=0; j<obj.coloane; j++) { //se alineaza nr sub cuvintele de deasupra
+            os << "(" ;
+            os.width(2);
+            os<<right<<obj.jetoane[i][j]<<")";
+
+        }
+        os << "\n" << endl;
+    }
+    return os;
+}
+//operatorul>>
+istream& operator>>(istream &is, Map &obj) {
+    if (obj.linii<=0 || obj.coloane<=0) {
+        cout<<"Errore! Dimensiunile nu sunt setate corect!"<<endl;
+        return is;
+    }
+    if (obj.grid!=nullptr) {
+        for (int i=0; i<obj.linii; i++) {
+            delete[] obj.grid[i];
+            delete[] obj.jetoane[i];
+        }
+        delete[] obj.grid;
+        delete[] obj.jetoane;
+    }
+    obj.grid=new TipResursa*[obj.linii];
+    obj.jetoane=new int*[obj.linii];
+    for (int i=0; i<obj.linii; i++) {
+        obj.grid[i]= new TipResursa[obj.coloane];
+        obj.jetoane[i]= new int[obj.coloane];
+    }
+    for (int i=0; i<obj.linii; i++) {
+        for (int j=0; j<obj.coloane; j++) {
+            obj.grid[i][j]= (TipResursa)(rand()%6); //genereaza de la 0 la 5
+            obj.jetoane[i][j]= (rand()%11)+2; //genereaza de la 2 la 12
+        }
+    }
+    return is;
+}
 class Game {
     static int noGame;
     const int id;
@@ -614,7 +678,19 @@ Game::~Game() {
 }
 
 int main() {
+    srand(time(0)); // Seteaza seed-ul pentru rand()
 
+    Map m(3, 4); // Harta 3x4
+    cin >> m;    // Generare random
+    cout << m;   // Afisare
+
+    Player p1("Irina", 0, 0);
+    cout << p1;
+
+    Game g(2, 3, 4, 30.0);
+    g.rundaNoua(); // Testeaza zarurile
+
+    return 0;
 }
 
 // //Player
@@ -630,3 +706,5 @@ int main() {
 //
 // + clasa meniu in proiect extra ((construcție tor default dra nu trb neaparat și ceilalți constructori)
 //overload pe opertaori
+
+////!!!!!!!!!!de alineat clasa map
