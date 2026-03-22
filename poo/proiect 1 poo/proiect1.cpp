@@ -536,8 +536,8 @@ ostream& operator<<(ostream &os, const Map &obj) {
                 os<<"[???]";
             }
             TipConstructie t=obj.cladiri[i][j].getTip();
-            if (t == SAT) os << ". ";
-            else if (t == ORAS) os << "..";
+            if (t == SAT) os << "(S) ";
+            else if (t == ORAS) os << "(O)";
             else if (t == DRUM) os << "==";
             else os << "  ";
 
@@ -550,7 +550,14 @@ ostream& operator<<(ostream &os, const Map &obj) {
             os.width(2);
             os<<right<<obj.jetoane[i][j]<<")";
 
+            if (obj.cladiri[i][j].getProprietar() != nullptr) {
+                os << "id:" << obj.cladiri[i][j].getProprietar()->getId() << "  ";
+            } else {
+                os << "      ";
+            }
         }
+
+
         os << "\n" << endl;
     }
     return os;
@@ -565,15 +572,19 @@ istream& operator>>(istream &is, Map &obj) {
         for (int i=0; i<obj.linii; i++) {
             delete[] obj.grid[i];
             delete[] obj.jetoane[i];
+            delete[] obj.cladiri[i];
         }
         delete[] obj.grid;
         delete[] obj.jetoane;
+        delete[] obj.cladiri;
     }
     obj.grid=new TipResursa*[obj.linii];
     obj.jetoane=new int*[obj.linii];
+    obj.cladiri=new Construction *[obj.linii];
     for (int i=0; i<obj.linii; i++) {
         obj.grid[i]= new TipResursa[obj.coloane];
         obj.jetoane[i]= new int[obj.coloane];
+        obj.cladiri[i] = new Construction[obj.coloane];
     }
     for (int i=0; i<obj.linii; i++) {
         for (int j=0; j<obj.coloane; j++) {
@@ -1070,4 +1081,3 @@ int main() {
     menu.run();
     return 0;
 }
-/
