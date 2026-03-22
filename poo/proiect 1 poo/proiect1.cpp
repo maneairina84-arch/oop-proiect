@@ -71,6 +71,7 @@ public:
 
     bool cePoateConstrui(TipConstructie tip);
     void consumaResurse(TipConstructie tip);
+    void adaugaResurse(int nrNoi, TipResursa* vectorNoi);
 
     bool poateConstruiSat() {
         return sateTotal>0;
@@ -321,6 +322,11 @@ public:
     //         else cout << "NONE";
     //     }
     // };
+    // În interiorul clasei Construction adaugă:
+    void setDate(TipConstructie t, Player* p) {
+        this->tip = t;
+        this->proprietar = p;
+    }
 };
 int Construction::noTotal=0;
 Construction :: Construction(): id(noTotal++) {
@@ -378,6 +384,7 @@ ostream& operator<<(ostream& os, const Construction& obj) {
 }
 
 class Map {
+    friend class Game;
     static int noMaps; // cate harti avem (trebuie la fnalul jocului sa fie 0 ca sa nu avem meory leaks)
     const int id;
     static int noAll;
@@ -537,23 +544,22 @@ ostream& operator<<(ostream &os, const Map &obj) {
             TipConstructie t=obj.cladiri[i][j].getTip();
             if (t == SAT) os << "(S) ";
             else if (t == ORAS) os << "(O)";
-            else if (t == DRUM) os << "===";
+            else if (t == DRUM) os << "(=)";
             else os << "  ";
 
             os<<" ";
         }
         os<<endl;
         //jetoanele cu numere
-        for (int j=0; j<obj.coloane; j++) { //se alineaza nr sub cuvintele de deasupra
-            os << "(" ;
-            os.width(2);
-            os<<right<<obj.jetoane[i][j]<<")";
+        for (int j = 0; j < obj.coloane; j++) {
+            os << " (" << (obj.jetoane[i][j] < 10 ? "0" : "") << obj.jetoane[i][j] << ") ";
 
             if (obj.cladiri[i][j].getProprietar() != nullptr) {
-                os << "id:" << obj.cladiri[i][j].getProprietar()->getId() << "  ";
+                os << "P" << obj.cladiri[i][j].getProprietar()->getId() << " ";
             } else {
-                os << "      ";
+                os << "   ";
             }
+            os << "    ";
         }
 
 
@@ -627,6 +633,8 @@ public:
     void setParticipants(int noParticipants, Player** Participants);
 
     void construieste(int idJucator, TipConstructie tip, int x, int y);
+    void rundaNoua();
+    void imparteResurse(int sumaZaruri);
     string poateIncepeJocul() {
         if (noParticipants<2) {
             return "Nu sunt suficienti jucatori, trebuie sa fie minim 2.";
@@ -683,32 +691,6 @@ public:
 
         return dieRoll;
 }
-    void rundaNoua() {
-        cout << "\n>>> INCEPE RUNDA " << this->rundaCurenta << " <<<" << endl;
-        cout << "Jucatorul arunca zarurile..." << endl;
-        int z1 =displayDice();
-        int z2= displayDice();
-        int sumaTotala = z1+z2;
-        do {
-            z1 = (rand() % 6) + 1;
-            z2 = (rand() % 6) + 1;
-            sumaTotala = z1 + z2;
-        } while (sumaTotala == 7); // Dacă dă 7 se repeta
-
-        cout << "Jucatorul a aruncat zarurile..." << endl;
-        cout << "Suma totala a zarurilor este: "<<sumaTotala << endl;
-        // if (sumaTotala == 7) {
-        // cout << "[EVENIMENT] S-a dat 7! Hotul se muta." << endl;
-        // for (int i = 0; i < noParticipants; i++) {
-        //     if (Participants[i] != nullptr && Participants[i]->getNoCards() > 7) {
-        //         cout << "  ! Jucatorul " << Participants[i]->getName()
-        //              << " trebuie sa piarda jumatate din carti." << endl;
-        //     }
-        cout << "Se impart resurse pentru numarul " << sumaTotala << "." << endl;
-        this->rundaCurenta++;
-        cout << "------------------------------------------" << endl;
-    }
-
 };
 int Game::noGame=0;
 Game::Game (): id(noGame++) {
@@ -984,14 +966,99 @@ void Game::construieste (int idJucator, TipConstructie tip, int x, int y) {
         cout <<om->getName() << " a plasat un DRUM la" <<x<<","<<y<< endl;
     }
 }
-void Map::amplaseaza(int linii, int coloane, TipConstructie tip, Player* proprietar) {
-
-    if (linii >= 0 && linii < this->linii && coloane >= 0 && coloane < this->coloane) {
-        this->cladiri[linii][coloane] = Construction(tip, proprietar);
+void Map::amplaseaza(int l, int c, TipConstructie tip, Player* proprietar) {
+    if (l >= 0 && l < this->linii && c >= 0 && c < this->coloane) {
+        this->cladiri[l][c].setDate(tip, proprietar);
     } else {
-        cout << "Coordonate invalide pe harta!" << endl;
+        cout << "Coordonate invalide!" << endl;
     }
 }
+
+void Player::adaugaResurse(int nrNoi, TipResursa* vectorNoi) {
+    int nrTotal = this->noCards + nrNoi;
+    TipResursa* temp = new TipResursa[nrTotal];
+
+    for (int i = 0; i < noCards; i++) {
+        temp[i] = this->resurse[i];
+    }
+
+    for (int i = 0; i < nrNoi; i++) {
+        temp[noCards + i] = vectorNoi[i];
+    }
+
+    delete[] this->resurse;
+    this->resurse = temp;
+    this->noCards = nrTotal;
+}
+void Game::imparteResurse(int sumaZaruri) {
+    cout << "\n[LOGICA JOC] Se verifica resursele pentru suma: " << sumaZaruri << endl;
+
+
+    for (int i = 0; i < gameMap->linii; i++) {
+        for (int j = 0; j < gameMap->coloane; j++) {
+
+
+            if (gameMap->jetoane[i][j] == sumaZaruri) {
+
+
+                Construction& constr = gameMap->cladiri[i][j];
+                Player* proprietar = constr.getProprietar();
+
+                if (proprietar != nullptr) {
+                    TipResursa tipResursa = gameMap->grid[i][j];
+                    int cantitate = 0;
+
+                    if (constr.getTip() == SAT) cantitate = 1;
+                    else if (constr.getTip() == ORAS) cantitate = 2;
+
+                    if (cantitate > 0) {
+                        //vector temporar cu noile resurse
+                        TipResursa* resurseNoi = new TipResursa[cantitate];
+                        for(int k = 0; k < cantitate; k++) {
+                            resurseNoi[k] = tipResursa;
+                        }
+
+                        proprietar->adaugaResurse(cantitate, resurseNoi);
+
+                        cout << "  (!) Jucatorul " << proprietar->getName()
+                             << " a primit " << cantitate << " unitati de resursa tip "
+                             << tipResursa << endl;
+
+                        delete[] resurseNoi;
+                    }
+                }
+            }
+        }
+    }
+}
+
+void Game::rundaNoua() {
+    cout << "\n>>> INCEPE RUNDA " << this->rundaCurenta << " <<<" << endl;
+    cout << "Jucatorul arunca zarurile..." << endl;
+    int z1 =displayDice();
+    int z2= displayDice();
+    int sumaTotala = z1+z2;
+    do {
+        z1 = (rand() % 6) + 1;
+        z2 = (rand() % 6) + 1;
+        sumaTotala = z1 + z2;
+    } while (sumaTotala == 7); // Dacă dă 7 se repeta
+
+    cout << "Jucatorul a aruncat zarurile..." << endl;
+    cout << "Suma totala a zarurilor este: "<<sumaTotala << endl;
+    // if (sumaTotala == 7) {
+    // cout << "[EVENIMENT] S-a dat 7! Hotul se muta." << endl;
+    // for (int i = 0; i < noParticipants; i++) {
+    //     if (Participants[i] != nullptr && Participants[i]->getNoCards() > 7) {
+    //         cout << "  ! Jucatorul " << Participants[i]->getName()
+    //              << " trebuie sa piarda jumatate din carti." << endl;
+    //     }
+    this->imparteResurse(sumaTotala);
+    cout << "Se impart resurse pentru numarul " << sumaTotala << "." << endl;
+    this->rundaCurenta++;
+    cout << "------------------------------------------" << endl;
+}
+
 
 class Menu {
     Game* joc;
