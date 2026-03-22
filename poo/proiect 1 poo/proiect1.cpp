@@ -17,7 +17,7 @@ enum TipResursa {
     OAIE,
     FAN,
     PIATRA,
-    DESERT// pt desert
+    DESERT
 };
 enum TipConstructie {
     NONE,
@@ -152,7 +152,7 @@ Player& Player::operator=(const Player &obj) {
 }
 Player:: ~Player() {
     if (this->name !=nullptr) {
-        delete this->name;
+        delete [] this->name;
     }
     if (this->resurse !=nullptr) {
         delete [] this->resurse;
@@ -301,6 +301,7 @@ class Construction {
     const int id;
     Player* proprietar;
 public:
+    //constructori si destructori
     Construction();
     Construction(TipConstructie tip, Player* proprietar);
     Construction(const Construction &obj);
@@ -361,6 +362,7 @@ Player* Construction::getProprietar() const {
     return this-> proprietar;
 }
 
+//operatorul<<
 ostream& operator<<(ostream& os, const Construction& obj) {
     const char* numeTip[]={"NONE", "SAT", "ORAS", "DRUM"};
     os << " | Tip: " << numeTip[obj.tip];
@@ -370,6 +372,8 @@ ostream& operator<<(ostream& os, const Construction& obj) {
         os << " | Fara proprietar";
     }
     return os;
+
+//operatorul >>
 }istream& operator>>(istream& is, Construction& obj) {
     int optiune;
     cout<<"Tip constructie (0.NONE, 1:SAT, 2:ORAS, 3:DRUM): ";
@@ -599,6 +603,7 @@ istream& operator>>(istream &is, Map &obj) {
     }
     return is;
 }
+
 class Game {
     static int noGame;
     const int id;
@@ -609,6 +614,7 @@ class Game {
     Map* gameMap;
     //ceva cu float
 public:
+    //constructorii si destructor
     Game();
     Game(int noParticipants, int liniiHarta, int coloaneHarta, double durataTura);
     Game(const Game &obj);
@@ -643,7 +649,7 @@ public:
     }
     int displayDice()
 {
-        // Generăm numărul (asigură-te că generator și distribution sunt definite)
+
         int dieRoll = rand()%6 +1;
 
         if (dieRoll == 1) {
@@ -1136,7 +1142,7 @@ public:
             cout << "Nume jucator " << i << ": ";
             cin >> nume;
             lista[i] = new Player(nume, 0, 0);
-            TipResursa start[] = {LEMN, CARAMIDA, OAIE, FAN, PIATRA, PIATRA, FAN}; // fiecare jucator primeste cate o resursa din fiecare categorie
+            TipResursa start[] = {LEMN, CARAMIDA, OAIE, FAN, PIATRA, PIATRA, FAN}; // fiecare jucator primeste mai multe resurse
             lista[i]->setResurse(7, start);
     }
         joc->setParticipants(nrP, lista);
