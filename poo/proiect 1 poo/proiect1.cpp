@@ -400,9 +400,8 @@ public:
             cladiri[i]=new Construction[coloane];
         }
     }
-    void amplaseaza (int linii, int coloane, TipConstructie tip, Player* proprietar) {
-        cladiri[linii][coloane]=Construction(tip, proprietar);
-    }
+    void amplaseaza (int linii, int coloane, TipConstructie tip, Player* proprietar);
+
 
     friend ostream& operator<<(ostream &os, const Map &obj);
     friend istream& operator>>(istream &is, Map &obj);
@@ -538,7 +537,7 @@ ostream& operator<<(ostream &os, const Map &obj) {
             TipConstructie t=obj.cladiri[i][j].getTip();
             if (t == SAT) os << "(S) ";
             else if (t == ORAS) os << "(O)";
-            else if (t == DRUM) os << "==";
+            else if (t == DRUM) os << "===";
             else os << "  ";
 
             os<<" ";
@@ -982,6 +981,14 @@ void Game::construieste (int idJucator, TipConstructie tip, int x, int y) {
     else if (tip == DRUM) {
         om->aConstruiDrum();
         cout <<om->getName() << " a plasat un DRUM la" <<x<<","<<y<< endl;
+    }
+}
+void Map::amplaseaza(int linii, int coloane, TipConstructie tip, Player* proprietar) {
+
+    if (linii >= 0 && linii < this->linii && coloane >= 0 && coloane < this->coloane) {
+        this->cladiri[linii][coloane] = Construction(tip, proprietar);
+    } else {
+        cout << "Coordonate invalide pe harta!" << endl;
     }
 }
 
