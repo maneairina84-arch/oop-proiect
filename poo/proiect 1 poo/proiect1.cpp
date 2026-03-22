@@ -244,7 +244,46 @@ ostream& operator<<(ostream& os, const Player& obj) {
 
 //operator>>
 istream& operator>>(istream& is, Player& obj) {
-    char
+    char buffer[256];
+    cout<<"Nume: ";
+    is>>buffer;
+    obj.setName(buffer);
+
+    int p;
+    cout<<"Puncte: ";
+    is>>p;
+    obj.setPoints(p);
+
+    bool  activ;
+    cout<<"1 (Da, este activ), 0(Nu, nu este activ) ";
+    is>>activ;
+    obj.setEsteActiv(activ);
+
+    int sate, orase, drumuri;
+    cout<<"Sate ramase: ";
+    is>>sate;
+    obj.setSateTotal(sate);
+    cout<<"Orase ramase: ";
+    is>>orase;
+    obj.setOraseTotal(orase);
+    cout<<"Drumuri ramase: ";
+    is>>drumuri;
+    obj.setDrumuriTotal(drumuri);
+    cout<<"Care este numarul de carti de resurse avute?";
+    int n;
+    is>>n;
+    obj.setResurse(n, nullptr);
+    if (n>0) {
+        cout<<"Introduceti tipul resurselor (0-4):"<<endl;
+        for (int i=0; i<n; i++) {
+            int valoareCitita;
+            cout<<"Resursa"<<i+1<<": ";
+            is>>valoareCitita;
+            obj.resurse[i]=(TipResursa)valoareCitita;
+        }
+
+    }
+    return is;
 }
 
 enum TipConstructie {
