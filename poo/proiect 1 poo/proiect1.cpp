@@ -851,6 +851,7 @@ void Game::setParticipants(int noParticipants, Player **Participants) {
 ostream & operator<<(ostream &os, const Game &obj) {
     os << "RUNDA: " << obj.rundaCurenta << endl;
     os << "TIMP TURA: " << obj.durataTura << "s" << endl;
+    return os;
 }
 
 //operatorul>>
