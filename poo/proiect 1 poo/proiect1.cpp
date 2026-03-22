@@ -520,6 +520,24 @@ public:
     Game(const Game &obj);
     Game & operator=(const Game &obj);
     ~Game();
+
+    friend ostream& operator<<(ostream &os, const Game &obj);
+    friend istream& operator>>(istream &is, Game &obj);
+
+    //getters
+    int getId() const;
+    int getNoParticipants() const;
+    int getRundaCurenta() const;
+    double getDurataTura() const;
+    Player** getParticipants() const;
+    Map* getGameMap() const;
+
+    //setters
+    void setDurataTura(double durataTura);
+    void setRundaCurenta(int rundaCurenta);
+    void setGameMap(Map* gameMap);
+    void setParticipants(int noParticipants, Player** Participants);
+
     string poateIncepeJocul() {
         if (noParticipants<2) {
             return "Nu sunt suficienti jucatori, trebuie sa fie minim 2.";
@@ -675,6 +693,73 @@ Game::~Game() {
         delete [] this->Participants;
     }
     Game::noGame--;
+}
+//getters
+int Game::getNoParticipants() const {
+    return this->noParticipants;
+}
+double Game::getDurataTura() const {
+    return this->durataTura;
+}
+int Game::getId() const {
+    return this->id;
+}
+int Game::getRundaCurenta() const {
+    return this->rundaCurenta;
+}
+
+Player** Game::getParticipants() const {
+    return this->Participants;
+}
+Map* Game::getGameMap() const {
+    return this->gameMap;
+}
+
+//setters
+void Game::setDurataTura(double durataTura) {
+    this->durataTura = durataTura;
+}
+
+void Game::setRundaCurenta(int rundaCurenta) {
+    this->rundaCurenta = rundaCurenta;
+}
+
+void Game::setGameMap(Map *gameMap) {
+    if (gameMap!=nullptr) {
+        delete this->gameMap;
+    }
+    this->gameMap = new Map(*gameMap);
+}
+
+void Game::setParticipants(int noParticipants, Player **Participants) {
+    if (Participants!=nullptr) {
+        delete [] this->Participants;
+    }
+    this->noParticipants = noParticipants;
+    if (this->Participants!=nullptr && noParticipants>0) {
+        this->Participants = new Player*[noParticipants];
+        for (int i=0; i<this->noParticipants; i++) {
+            this->Participants[i]=Participants[i];
+        }
+    }
+    else {
+        this->Participants=nullptr;
+    }
+}
+
+//operatorul<<
+ostream & operator<<(ostream &os, const Game &obj) {
+    os << "RUNDA: " << obj.rundaCurenta << endl;
+    os << "TIMP TURA: " << obj.durataTura << "s" << endl;
+}
+
+//operatorul>>
+istream & operator>>(istream &is, Game &obj) {
+    cout << "--- SETARI GENERALE JOC ---" << endl;
+    cout << "Setati durata universala a unei ture (secunde): ";
+    is >> obj.durataTura;
+
+    return is;
 }
 
 int main() {
