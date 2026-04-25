@@ -44,23 +44,23 @@ Player:: ~Player(){}
 
 //getters
 int Player:: getId() const {
-    return id;
+    return this->id;
 }
 std::string Player::getName() const {
-    return name;
+    return this->name;
 }
 long Player::getMoneyBalance() const {
-    return moneyBalance;
+    return this->moneyBalance;
 }
 int Player::getCurrentPosition() const {
-    return currentPosition;
+    return this->currentPosition;
 }
 bool Player::getInJail() const {
-    return inJail;
+    return this->inJail;
 }
 
 std::vector<int> Player::getOwnProperties() const {
-    return ownProperties;
+    return this->ownProperties;
 }
 
 //setters
