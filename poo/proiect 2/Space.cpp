@@ -17,7 +17,6 @@ Space& Space::operator=(const Space& obj) {
     }
     return *this;
 }
-Space:: ~Space() {}
 
 //getters
 int Space:: getId() const {

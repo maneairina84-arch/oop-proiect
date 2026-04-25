@@ -18,14 +18,14 @@ public:
     Space(int id, std::string name);
     Space(const Space& obj);
     Space& operator=(const Space& obj);
-    virtual ~Space();
+    virtual ~Space() = default;
 
 
     //getters
     int getId() const;
     std::string getName() const;
 
-    friend std:: ostream& <<(std::ostream& os, const Space& obj);
+    friend std:: ostream& operator<<(std::ostream& os, const Space& obj);
     friend std:: istream& operator>>(std::istream is, Space& obj);
 
     //fctie netriviala
