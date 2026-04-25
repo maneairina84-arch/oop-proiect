@@ -7,7 +7,7 @@
 #include "Space.h"
 
 Property:: Property(): Space(0, "basic"), chirie(0), pret(0), idProprietar(-1) {}
-Property:: Property(int id, std::strng name, long chirie, long pret): Space(id, name) {
+Property:: Property(int id, std::string name, long chirie, long pret): Space(id, name) {
     this->chirie = chirie;
     this->pret = pret;
     this->idProprietar = -1;

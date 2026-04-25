@@ -9,7 +9,7 @@
 #include<vector>
 #include<Space.h>
 
-class Property: virtual public Space{
+class Property: public Space{
 protected:
     long chirie;
     long pret;
