@@ -5,6 +5,9 @@
 #ifndef UNTITLED_EVENTS_H
 #define UNTITLED_EVENTS_H
 #include <string>
+#include<iostream>
+#include<vector>
+#include<Space.h>
 
 
 class Events: public Space {
