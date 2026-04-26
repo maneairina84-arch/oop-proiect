@@ -9,7 +9,7 @@
 #include "Utilities.h"
 
 Specials:: Specials(): Space (-1, "s basic"), Property(), Utilities(), special("Fara detalii"){}
-// Constructorul ar trebui să arate așa (verifică ordinea argumentelor):
+
 Specials::Specials(int id, std::string name, long chirie, long pret, int multiplicator, std::string special): Space(id, name), Property(id, name, chirie, pret), Utilities(id, name, multiplicator), special(special) {
     Property::idProprietar = -1;
 }
