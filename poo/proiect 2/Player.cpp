@@ -104,10 +104,14 @@ bool Player::payBail() {
         this->inJail = false;
         this->rundeDeStat = 0;
 
-        std::cout << this->name << " a platit taxa fixa de " << TAXA_FIXA << " $ a fost eliberat!";
+        std::cout << this->name << " a platit taxa fixa de 50 $ si a fost eliberat!";
         return true;
     } else {
         std::cout << this->name << " nu are 50 $ pentru a iesi din inchisoare!";
         return false;
     }
+}
+
+void Player::addProperties(int idProperties) {
+    this->ownProperties.push_back(idProperties);
 }

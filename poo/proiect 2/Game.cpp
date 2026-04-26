@@ -24,7 +24,15 @@ std::string Game::getPlayerAtPos(int pos) const {
 std::string Game::getNameFixed(int pos) const {
     if (pos >= board.size()) return "     ";
     std::string name = board[pos]->getName();
-    if (name.length() > 5) name = name.substr(0, 5);
+    Property* prop = dynamic_cast<Property*>(board[pos]);
+
+    if (prop && prop->getIdProprietar() != -1) {
+        if (name.length() > 3) name = name.substr(0, 3);
+        name += "(" + std::to_string(prop->getIdProprietar()) + ")";
+    } else {
+        if (name.length() > 5) name = name.substr(0, 5);
+    }
+
     while (name.length() < 5) name += " ";
     return name;
 }
@@ -192,6 +200,13 @@ std::istream& operator>>(std::istream& is, Game& obj) {
 
 void Game:: playTurn() {
     Player* p=players[currentPlayerIndex];
+    if (p->getInJail()) {
+        this->payToEscapeJail();
+        if (p->getInJail()) {
+            currentPlayerIndex = (currentPlayerIndex + 1) % players.size();
+            return;
+        }
+    }
    std:: cout << "Jucatorul arunca zarurile...\n";
     int z1=displayDice();
     int z2=displayDice();
@@ -199,15 +214,17 @@ void Game:: playTurn() {
     std:: cout << "Jucatorul a aruncat zarurile...\n";
     std::cout << "Suma totala a zarurilor este: "<<sumaTotala<<"\n";
     int pasi=sumaTotala;
-    int old= p->getCurrentPosition();
-    int now= (old+pasi)%BOARD_SIZE;
+    int oldPos= p->getCurrentPosition();
+    int nowPos= (oldPos+pasi)%BOARD_SIZE;
 
-    if (now<old) {
+    if (nowPos<oldPos) {
+        std::cout << "Ai trecut pe la START! +200$\n";
         p->setMoneyBalance(p->getMoneyBalance()+200);
     }
-    p->setCurrentPosition(now);
+    p->setCurrentPosition(nowPos);
 
-    board[now]->updatePosition(*p, pasi);
+    board[nowPos]->updatePosition(*p, pasi);
+    std::cin.clear();
     currentPlayerIndex=(currentPlayerIndex+1)%players.size();
 }
 
@@ -301,3 +318,4 @@ void Game::payToEscapeJail() {
             return;
         }
     }
+}

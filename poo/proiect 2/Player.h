@@ -48,6 +48,9 @@ public:
     void sendToJail();
     bool payBail();
 
+    void setRundeDeStat(int rundeDeStat);
+    void addProperties(int idProperties);
+
 };
 
 
