@@ -3,22 +3,25 @@
 //
 
 #include "Specials.h"
-
 #include "Property.h"
 #include "Space.h"
 #include "Utilities.h"
+#include <iostream>
+#include <stdexcept>
 
-Specials:: Specials(): Space (-1, "s basic"), Property(), Utilities(), special("Fara detalii"){}
+Specials::Specials() : Space(-1, "s basic"), Property(), Utilities(), special("Fara detalii") {}
 
-Specials::Specials(int id, std::string name, long chirie, long pret, int multiplicator, std::string special): Space(id, name), Property(id, name, chirie, pret), Utilities(id, name, multiplicator), special(special) {
+Specials::Specials(int id, std::string name, long chirie, long pret, int multiplicator, std::string special) : Space(id, name), Property(id, name, chirie, pret), Utilities(id, name, multiplicator), special(special) {
     Property::idProprietar = -1;
 }
-Specials:: Specials(const Specials& obj): Space(obj), Property(obj), Utilities(obj), special(obj.special){}
-Specials& Specials:: operator=(const Specials& obj) {
-    if (this!=&obj) {
+
+Specials::Specials(const Specials& obj) : Space(obj), Property(obj), Utilities(obj), special(obj.special) {}
+
+Specials& Specials::operator=(const Specials& obj) {
+    if (this != &obj) {
         Property::operator=(obj);
         Utilities::operator=(obj);
-        this->special= obj.special;
+        this->special = obj.special;
     }
     return *this;
 }
@@ -27,12 +30,14 @@ Specials& Specials:: operator=(const Specials& obj) {
 Space* Specials::clone() const {
     return new Specials(*this);
 }
+
 //getter
 std::string Specials::getSpecial() const {
     return special;
 }
+
 void Specials::setSpecial(std::string special) {
-    this->special=special;
+    this->special = special;
 }
 
 //operatori
@@ -46,17 +51,24 @@ std::istream& operator>>(std::istream& is, Specials& obj) {
     int multiplicator;
     std::string spec;
 
-    if (is >> pret >> chirie >> multiplicator) {
-        obj.Property::setPret(pret);
-        obj.Property::setChirie(chirie);
-        obj.Utilities::setMultiplicator(multiplicator);
+    try {
+        if (is >> pret >> chirie >> multiplicator) {
+            obj.Property::setPret(pret);
+            obj.Property::setChirie(chirie);
+            obj.Utilities::setMultiplicator(multiplicator);
 
-        obj.Property::setIdProprietar(-1);
-        obj.Utilities::setIdProprietar(-1);
+            obj.Property::setIdProprietar(-1);
+            obj.Utilities::setIdProprietar(-1);
 
-        is.ignore();
-        std::getline(is, spec);
-        obj.setSpecial(spec);
+            is.ignore();
+            std::getline(is, spec);
+            obj.setSpecial(spec);
+        } else {
+            throw std::invalid_argument("Date de intrare invalide pentru Specials!");
+        }
+    } catch (const std::exception& e) {
+        std::cerr << "Eroare citire Specials: " << e.what() << std::endl;
+        is.clear();
     }
     return is;
 }
@@ -67,19 +79,25 @@ void Specials::updatePosition(Player& p, std::vector<Player*>& allPlayers, int p
     if (Property::idProprietar == -1) {
         std::cout << "Pret achizitie: " << this->pret << " $. Cumperi? (1-DA, 2-NU): ";
         int optiune;
-        std::cin >> optiune;
-        if (optiune == 1 && p.getMoneyBalance() >= this->pret) {
-            p.setMoneyBalance(p.getMoneyBalance() - this->pret);
-            Property::idProprietar = p.getId();
-            p.addProperties(this->getId());
-            this->multiplicator = 1;
-            std::cout << "Acum detii " << this->getName() << "!\n";
+        try {
+            if (!(std::cin >> optiune)) {
+                std::cin.clear();
+                std::cin.ignore(1000, '\n');
+                throw std::invalid_argument("Input invalid!");
+            }
+            if (optiune == 1 && p.getMoneyBalance() >= this->pret) {
+                p.setMoneyBalance(p.getMoneyBalance() - this->pret);
+                Property::idProprietar = p.getId();
+                p.addProperties(this->getId());
+                this->multiplicator = 1;
+                std::cout << "Acum detii " << this->getName() << "!\n";
+            }
+        } catch (const std::exception& e) {
+            std::cerr << "Eroare: " << e.what() << " Se anuleaza actiunea.\n";
         }
-    }
-    else if (Property::idProprietar == p.getId()) {
+    } else if (Property::idProprietar == p.getId()) {
         std::cout << "Este gara/portul tau.\n";
-    }
-    else {
+    } else {
         Player* proprietarReal = nullptr;
         for (Player* jucator : allPlayers) {
             if (jucator->getId() == Property::idProprietar) {
@@ -100,17 +118,21 @@ void Specials::updatePosition(Player& p, std::vector<Player*>& allPlayers, int p
                 }
             }
 
-            //try catch
+            try {
+                if (nrGariDetinute == 0) throw std::logic_error("Eroare calcul: Proprietarul nu detine gari!");
 
-            long chirieFinala = (long)this->chirie * nrGariDetinute;
+                long chirieFinala = (long)this->chirie * nrGariDetinute;
 
-            std::cout << "Esti pe gara lui " << proprietarReal->getName() << "!\n";
-            std::cout << "Proprietarul detine " << nrGariDetinute << " gari.\n";
-            std::cout << "Platesti chirie (" << this->chirie << " * " << nrGariDetinute << "): " << chirieFinala << " $\n";
+                std::cout << "Esti pe gara lui " << proprietarReal->getName() << "!\n";
+                std::cout << "Proprietarul detine " << nrGariDetinute << " gari.\n";
+                std::cout << "Platesti chirie (" << this->chirie << " * " << nrGariDetinute << "): " << chirieFinala << " $\n";
 
-            p.setMoneyBalance(p.getMoneyBalance() - chirieFinala);
-            proprietarReal->setMoneyBalance(proprietarReal->getMoneyBalance() + chirieFinala);
-            std::cout << "Banii au fost transferati cu succes.\n";
+                p.setMoneyBalance(p.getMoneyBalance() - chirieFinala);
+                proprietarReal->setMoneyBalance(proprietarReal->getMoneyBalance() + chirieFinala);
+                std::cout << "Banii au fost transferati cu succes.\n";
+            } catch (const std::exception& e) {
+                std::cerr << e.what() << std::endl;
+            }
         }
     }
 }

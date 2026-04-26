@@ -5,6 +5,7 @@
 #include "Property.h"
 
 #include "Space.h"
+#include <stdexcept>
 
 Property:: Property(): Space(0, "basic"), chirie(0), pret(0), idProprietar(-1) {}
 Property:: Property(int id, std::string name, long chirie, long pret): Space(id, name) {
@@ -63,36 +64,46 @@ void Property::updatePosition(Player& p, std::vector<Player*>& allPlayers, int p
         std::cout << "Soldul tau actual: " << p.getMoneyBalance() << " $";
         std::cout << "Doresti sa o cumperi? (1 - DA / 2 - NU): ";
         int optiune;
-        std::cin >> optiune;
-        if (optiune == 1) {
-            if (p.getMoneyBalance() >= this->pret) {
-                p.setMoneyBalance(p.getMoneyBalance() - this->pret);
-                this->idProprietar = p.getId();
-                p.addProperties(this->getId());
-                std::cout << "FELICITARI! Ai cumparat " << this->getName() << "!";
-            } else {
-                std::cout << "FONDURI INSUFICIENTE pentru a cumpara aceasta proprietate.";
+        try {
+            if (!(std::cin >> optiune)) {
+                std::cin.clear();
+                std::cin.ignore(1000, '\n');
+                throw std::invalid_argument("Input invalid! Se considera raspuns negativ.");
+            }
+            if (optiune == 1) {
+                if (p.getMoneyBalance() >= this->pret) {
+                    p.setMoneyBalance(p.getMoneyBalance() - this->pret);
+                    this->idProprietar = p.getId();
+                    p.addProperties(this->getId());
+                    std::cout << "FELICITARI! Ai cumparat " << this->getName() << "!";
+                } else {
+                    std::cout << "FONDURI INSUFICIENTE pentru a cumpara aceasta proprietate.";
+                }
+            }
+            else {
+                std::cout << "Ai ales sa nu cumperi proprietatea." ;
             }
         }
-        else {
-            std::cout << "Ai ales sa nu cumperi proprietatea." ;
+        catch (const std::exception& e) {
+            std::cerr << e.what() << std::endl;
         }
     }
 
-    //este deja a jucatorului curent
-    else if (this->idProprietar == p.getId()) {
-        std::cout << "Te afli pe propria ta proprietate." ;
-    }
-    // este luata de altcineva
-    else{
-        std::cout << "Proprietatea este detinuta de Jucatorul cu id " << this->idProprietar << "." ;
-        std::cout << "Trebuie sa platesti o chirie de: " << this->chirie << " $" ;
+        //este deja a jucatorului curent
+        else if (this->idProprietar == p.getId()) {
+            std::cout << "Te afli pe propria ta proprietate." ;
+        }
+        // este luata de altcineva
+        else{
+            std::cout << "Proprietatea este detinuta de Jucatorul cu id " << this->idProprietar << "." ;
+            std::cout << "Trebuie sa platesti o chirie de: " << this->chirie << " $" ;
 
-        long soldCurent = p.getMoneyBalance();
-        p.setMoneyBalance(soldCurent - this->chirie);
-        std::cout << "Ai platit chiria. Sold ramas: " << p.getMoneyBalance() << " $" ;
+            long soldCurent = p.getMoneyBalance();
+            p.setMoneyBalance(soldCurent - this->chirie);
+            std::cout << "Ai platit chiria. Sold ramas: " << p.getMoneyBalance() << " $" ;
+        }
     }
-}
+
     //operatori
 std::ostream& operator<<(std::ostream& os, const Property& obj) {
     os << obj.getName() << " (ID: " << obj.getId() << ")";

@@ -7,6 +7,9 @@
 #include<cstdlib>
 #include <ctime>
 #include<vector>
+#include<string>
+#include<fstream>
+#include <stdexcept>
 
 #include "Space.h"
 
@@ -84,24 +87,68 @@ int Game::getNrPlayers() const {
     return static_cast<int>(players.size());
 }
 
-//se creeaza casutele standard
+
 void Game::initGame() {
-    for (Space* s: board) {
+    for (Space* s : board) {
         delete s;
     }
     board.clear();
+
+    std::ifstream fConfig("config.txt");
+
     board.push_back(new Events(0, "START", "Salariu", 200));
-    board.push_back(new Property(1, "Vitan", 100, 50));
-    board.push_back(new Property(2, "Cotroceni", 120, 60));
+
+    if (!fConfig.is_open()) {
+        board.push_back(new Property(1, "Vitan", 100, 50));
+        board.push_back(new Property(2, "Cotroceni", 120, 60));
+    } else {
+        int id, pret, chirie;
+        std::string nume;
+        for(int i = 0; i < 2; ++i) {
+            if(fConfig >> id >> nume >> pret >> chirie)
+                board.push_back(new Property(id, nume, pret, chirie));
+        }
+    }
+
     board.push_back(new Specials(3, "Gara", 500, 100, 2, "Transport"));
     board.push_back(new Utilities(4, "Apa", 7));
-    board.push_back(new Property(5, "PBT", 150, 70));
+
+    if (fConfig.is_open()) {
+        int id, pret, chirie;
+        std::string nume;
+        if(fConfig >> id >> nume >> pret >> chirie)
+            board.push_back(new Property(id, nume, pret, chirie));
+    } else {
+        board.push_back(new Property(5, "PBT", 150, 70));
+    }
+
     board.push_back(new Events(6, "Vizita", "Inchisoare", 0));
-    board.push_back(new Property(7, "Magheru", 300, 150));
-    board.push_back(new Property(8, "Unirii", 350, 180));
+
+    if (fConfig.is_open()) {
+        int id, pret, chirie;
+        std::string nume;
+        for(int i = 0; i < 2; ++i) {
+            if(fConfig >> id >> nume >> pret >> chirie)
+                board.push_back(new Property(id, nume, pret, chirie));
+        }
+    } else {
+        board.push_back(new Property(7, "Magheru", 300, 150));
+        board.push_back(new Property(8, "Unirii", 350, 180));
+    }
+
     board.push_back(new Specials(9, "Port", 500, 100, 2, "Transport"));
     board.push_back(new Events(10, "Jail", "Inchisoare", 0));
     board.push_back(new Events(11, "Chest", "Noroc?", 50));
+
+    if (fConfig.is_open()) fConfig.close();
+    try {
+        if (board.size() < 12) {
+            throw std::runtime_error("CRITICAL: Tabla de joc nu are 12 casute! Verifica config.txt");
+        }
+    } catch (const std::exception& e) {
+        std::cerr << e.what() << std::endl;
+
+    }
 }
 
 
@@ -186,8 +233,24 @@ std::ostream& operator<< (std::ostream& os, const Game& obj) {
 
 std::istream& operator>>(std::istream& is, Game& obj) {
     int nr;
-    std::cout << "Numar jucatori (2-4): "; // sa fac si cu try catch
-    is >> nr;
+    bool valid = false;
+    while (!valid) {
+        try {
+            std::cout << "Numar jucatori (2-4): ";
+            if (!(is >> nr)) {
+                is.clear();
+                is.ignore(1000, '\n');
+                throw std::invalid_argument("Eroare: Trebuie sa introduci un numar intreg!");
+            }
+            if (nr < 2 || nr > 4) {
+                throw std::out_of_range("Eroare: Jocurile de Monopoly se joaca in 2-4 persoane!");
+            }
+            valid = true;
+        } catch (const std::exception& e) {
+            std::cerr << e.what() << std::endl;
+        }
+    }
+
     obj.players.clear();
     for(int i = 0; i < nr; ++i) {
         std::string n;
@@ -197,7 +260,6 @@ std::istream& operator>>(std::istream& is, Game& obj) {
     }
     return is;
 }
-
 void Game:: playTurn() {
     Player* p=players[currentPlayerIndex];
     if (p->getInJail()) {
@@ -224,33 +286,62 @@ void Game:: playTurn() {
     p->setCurrentPosition(nowPos);
 
     board[nowPos]->updatePosition(*p, this->players, pasi);
-    std::cin.clear();
+    std::cin.ignore(1000, '\n');
     currentPlayerIndex=(currentPlayerIndex+1)%players.size();
 }
 
-void Game:: startGame() {
-    std::cin>> *this;
-    this-> initGame();
-    int nrTure;
-    std::cout << "\nCate ture doriti sa aiba jocul? "; //try catch cu nr de ture invalid
-    std::cin>>nrTure;
+void Game::startGame() {
+    std::cin >> *this;
 
-    for (int tura=1; tura<=nrTure; tura++) {
+    this->initGame();
+
+    int nrTure = 0;
+    bool validTure = false;
+
+    while (!validTure) {
+        try {
+            std::cout << "\nCate ture doriti sa aiba jocul? ";
+            if (!(std::cin >> nrTure)) {
+                std::cin.clear();
+                std::cin.ignore(1000, '\n');
+                throw std::invalid_argument("Eroare: Introdu un numar valid!");
+            }
+            if (nrTure <= 0) {
+                throw std::out_of_range("Eroare: Numarul de ture trebuie sa fie pozitiv!");
+            }
+            validTure = true;
+            std::cin.ignore(1000, '\n'); // Curatam buffer-ul dupa numarul de ture
+        } catch (const std::exception& e) {
+            std::cerr << e.what() << std::endl;
+        }
+    }
+
+    for (int tura = 1; tura <= nrTure; tura++) {
         std::cout << "\n==========================================";
         std::cout << "\n          INCEPE TURA " << tura << " DIN " << nrTure;
         std::cout << "\n==========================================\n";
 
-        int n= getNrPlayers();
-        for (int i=0; i<n; i++) {
-            std::cout<< *this;
-            this-> playTurn();
+        for (int i = 0; i < getNrPlayers(); i++) {
+            std::cout << *this;
+            this->playTurn();
 
-            std::cout << "Apasa Enter pentru a trece la urmatorul jucator!";
-            std::cin.ignore(1000, '\n');
-            std::cin.get();
+            std::cout << "\n[Tura " << tura << "] Apasa ENTER sau 'Q' pentru meniu: ";
+
+            std::string input;
+            std::getline(std::cin, input);
+
+
+            if (!input.empty() && (input[0] == 'q' || input[0] == 'Q')) {
+                std::cout << "\nSe revine la meniul principal...\n";
+                return;
+            }
         }
-    }
+
+        }
+
     this->announceWinner();
+    std::cout << "\nJocul s-a terminat. Apasa Enter pentru meniu...";
+    std::cin.get();
 }
 
 void Game::announceWinner() {
@@ -321,12 +412,30 @@ void Game::payToEscapeJail() {
 }
 
 //serializare
-void Game:: saveGame(const std::string& filename) const {
+void Game::saveGame(const std::string& filename) const {
     std::ofstream fout(filename);
 
     if (!fout.is_open()) {
-        throw std::runtime_error("Nu s-a putut deschide fisierul pentru salvare!");
+        throw std::runtime_error("Eroare critica: Nu s-a putut crea fisierul de salvare!");
     }
+
     fout << players.size() << "\n";
+
+    for (const auto& p : players) {
+        fout << p->getName() << " "
+             << p->getMoneyBalance() << " "
+             << p->getCurrentPosition() << "\n";
+    }
+
+    for (const auto& s : board) {
+        Property* prop = dynamic_cast<Property*>(s);
+
+        if (prop) {
+            fout << prop->getId() << " " << prop->getIdProprietar() << "\n";
+        }
+    }
+
+    fout.close();
+
 }
 

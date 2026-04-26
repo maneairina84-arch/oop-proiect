@@ -5,6 +5,7 @@
 #include "Utilities.h"
 
 #include "Space.h"
+#include <stdexcept>
 
 Utilities:: Utilities(): Space(-1,"utilizare generala"), multiplicator(0), idProprietar(-1) {}
 Utilities:: Utilities(int id, std::string name, int multiplicator): Space(id,name) {

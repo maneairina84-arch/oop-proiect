@@ -3,6 +3,7 @@
 //
 
 #include "Player.h"
+#include <stdexcept>
 
 int Player:: noPlayers=0;
 Player:: Player(): id(noPlayers++),

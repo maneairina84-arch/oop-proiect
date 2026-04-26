@@ -6,6 +6,7 @@
 #include "Events.h"
 
 #include "Space.h"
+#include <stdexcept>
 
 Events:: Events(): Space(-1, "unknown event"), tipSansa(""), newSum(0){}
 Events::Events(int id, std::string name, std::string tipSansa, long newSum): Space(id, name) {

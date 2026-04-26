@@ -42,8 +42,15 @@ void Menu::handleMenu(int option) {
             game.startGame();
             break;
         case 2:
-            std::cout << "Progresul a fost salvat cu succes!\n";
+            try {
+                game.saveGame("progres_salvat.txt");
+                std::cout << "Progresul a fost salvat cu succes in 'save_progres.txt'!\n";
+            }
+            catch (const std::exception& e) {
+                std::cerr << "Eroare la salvare: " << e.what() << std::endl;
+            }
             break;
+
         default:
             std::cout << "Optiune invalida! Incearca 0, 1 sau 2.\n";
             break;
