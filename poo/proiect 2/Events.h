@@ -34,7 +34,8 @@ public:
     friend std:: istream& operator >>(std::istream& is, Events& obj);
 
 
-    void updatePosition(Player& p, int pasi) override;
+
+    void updatePosition(Player& p, std::vector<Player*>& allPlayers, int pasi) override;
 };
 
 

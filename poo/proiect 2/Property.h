@@ -36,7 +36,7 @@ public:
     friend std::ostream& operator<<(std:: ostream & os, const Property& obj);
     friend std:: istream& operator>>(std::istream& is, Property& obj);
 
-    void updatePosition(Player& p, int pasi) override;
+    void updatePosition(Player& p, std::vector<Player*>& allPlayers, int pasi) override;
 
 
 

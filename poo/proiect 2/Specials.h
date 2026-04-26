@@ -30,7 +30,7 @@ public:
     friend std::ostream& operator<<(std::ostream& os, const Specials& obj);
     friend std::istream& operator>>(std::istream& is, Specials& obj);
 
-    void updatePosition(Player& p, int pasi) override;
+    void updatePosition(Player& p, std::vector<Player*>& allPlayers, int pasi) override;
 };
 
 

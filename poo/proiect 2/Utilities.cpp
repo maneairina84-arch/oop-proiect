@@ -9,7 +9,7 @@
 Utilities:: Utilities(): Space(-1,"utilizare generala"), multiplicator(0), idProprietar(-1) {}
 Utilities:: Utilities(int id, std::string name, int multiplicator): Space(id,name) {
     this->multiplicator = multiplicator;
-    this->idProprietar = id;
+    this->idProprietar = -1;
 }
 Utilities:: Utilities(const Utilities& obj): Space(obj), multiplicator(obj.multiplicator), idProprietar(obj.idProprietar) {}
 Utilities& Utilities::operator = (const Utilities& obj) {
@@ -43,5 +43,51 @@ void Utilities::setIdProprietar(int id) {
 
 //OPERATORI PLUS FCT
 
-void Utilities::updatePosition(Player& p, int pasi) {
-}
+void Utilities::updatePosition(Player& p, std::vector<Player*>& allPlayers, int pasi) {
+    if (Utilities::idProprietar == -1) {
+        int pretFix=150;
+        std::cout << "Aceasta utilitate este libera. Pret: 150 $";
+        std::cout << "Soldul tau actual: " << p.getMoneyBalance() << " $";
+        std::cout << "Doresti sa o cumperi pentru" <<pretFix<<"$? (1 - DA / 2 - NU): ";
+        int optiune;
+        std::cin >> optiune;
+        if (optiune == 1) {
+            if (p.getMoneyBalance() >= pretFix) {
+                p.setMoneyBalance(p.getMoneyBalance() -pretFix);
+                this->idProprietar = p.getId();
+                p.addProperties(this->getId());
+                std::cout << "FELICITARI! Ai cumparat " << this->getName() << "!";
+            } else {
+                std::cout << "FONDURI INSUFICIENTE pentru a cumpara aceasta utilitate.";
+            }
+        }
+        else {
+            std::cout << "Ai ales sa nu cumperi proprietatea." ;
+        }
+    }
+    else if (this->idProprietar == p.getId()) {
+        std::cout << "Ești acasă la " << this->getName() << ". Nu plătești nimic." << std::endl;
+    }
+    else {
+        Player* proprietarReal = nullptr;
+        for (Player* jucator : allPlayers) {
+            if (jucator->getId() == this->idProprietar) {
+                proprietarReal = jucator;
+                break;
+            }
+        }
+
+        if (proprietarReal != nullptr) {
+            long taxa = (long)pasi * this->multiplicator;
+
+            std::cout << "Ai ajuns pe utilitatea lui " << proprietarReal->getName() << "!" << std::endl;
+            std::cout << "Ai dat " << pasi << " la zaruri, iar multiplicatorul este x" << this->multiplicator << "." << std::endl;
+            std::cout << "Trebuie să plătești: " << taxa << " $." << std::endl;
+
+            p.setMoneyBalance(p.getMoneyBalance() - taxa);
+            proprietarReal->setMoneyBalance(proprietarReal->getMoneyBalance() + taxa);
+
+            std::cout << "Tranzacție finalizată." << std::endl;
+        }
+    }
+    }

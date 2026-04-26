@@ -49,7 +49,7 @@ void Property::setIdProprietar(int id) {
 }
 
 
-void Property::updatePosition(Player& p, int pasi) {
+void Property::updatePosition(Player& p, std::vector<Player*>& allPlayers, int pasi) {
     std::cout <<"Ai ajuns pe" << this->getName();
     //proprietatea e libera
     if (this->idProprietar == -1) {

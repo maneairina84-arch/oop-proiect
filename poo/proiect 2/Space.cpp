@@ -32,5 +32,5 @@ std::ostream& operator<<(std::ostream& os, const Space& obj) {
 std::istream& operator>>(std::istream& is, Space& obj) {
     return is;
 }
-void Space::updatePosition(Player& p, int pasi) {
+void Space::updatePosition(Player& p, std::vector<Player*>& allPlayers, int pasi)  {
 }

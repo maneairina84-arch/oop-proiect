@@ -54,7 +54,7 @@ std::ostream& operator<<(std::ostream& os, const Events& obj) {
 std::istream& operator>>(std::istream& is, Events& obj) {
 }
 //generare carte sansa
-void Events::updatePosition(Player& p, int pasi) {
+void Events::updatePosition(Player& p, std::vector<Player*>& allPlayers, int pasi) {
     std::string tipuri[]={"Taxa de drum", "Amenda","Premiu", "Eroare bancara","Go to Jail"};
     long sume[]= {-50, -150, 500, 100,0};
     int randomIndex= rand()%5;

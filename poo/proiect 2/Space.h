@@ -22,7 +22,7 @@ public:
     virtual ~Space() = default;
 
     virtual Space* clone() const = 0;
-    virtual void updatePosition(Player& p, int pasi)=0;
+    virtual void updatePosition(Player& p, std::vector<Player*>& allPlayers, int pasi) = 0;
 
 
     //getters

@@ -223,7 +223,7 @@ void Game:: playTurn() {
     }
     p->setCurrentPosition(nowPos);
 
-    board[nowPos]->updatePosition(*p, pasi);
+    board[nowPos]->updatePosition(*p, this->players, pasi);
     std::cin.clear();
     currentPlayerIndex=(currentPlayerIndex+1)%players.size();
 }
