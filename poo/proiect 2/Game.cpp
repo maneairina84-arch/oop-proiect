@@ -6,6 +6,7 @@
 #include <iostream>
 #include<cstdlib>
 #include <ctime>
+#include<vector>
 
 #include "Space.h"
 
@@ -238,11 +239,18 @@ void Game:: startGame() {
 void Game::announceWinner() {
     if (players.empty()) return; //try catch
 
-    int winnerIdx =0;
-    for (size_t i=0; i<players.size(); i++) {
-        if  (players[i]->getMoneyBalance()> players[winnerIdx]->getMoneyBalance()) {
-            winnerIdx = i;
+    long maxBalance = players[0]->getMoneyBalance();
+    for (size_t i = 1; i < players.size(); i++) {
+        if (players[i]->getMoneyBalance() > maxBalance) {
+            maxBalance = players[i]->getMoneyBalance();
         }
+    }
+    std::vector<Player*> winners;
+    for (size_t i = 0; i < players.size(); i++) {
+        if (players[i]->getMoneyBalance() == maxBalance) {
+            winners.push_back(players[i]);
+        }
+
     }
     std::cout << "\n\n";
     std::cout << "       ___________" << std::endl;
@@ -259,10 +267,16 @@ void Game::announceWinner() {
     std::cout << "\n==========================================";
     std::cout << "\n          FINALUL JOCULUI";
     std::cout << "\n==========================================";
-    std::cout << "\n  FELICITARI, " << players[winnerIdx]->getName() << "!";
-    std::cout << "\n  Ai castigat cu: " << players[winnerIdx]->getMoneyBalance() << "$ in cont!";
-    std::cout << "\n==========================================";
-
+    if (winners.size() > 1) {
+        std::cout << "\n  AVEM EGALITATE! CASTIGATORII SUNT:";
+        for (Player* w : winners) {
+            std::cout << "\n  - " << w->getName();
+        }
+    } else {
+        std::cout << "\n  FELICITARI, " << winners[0]->getName() << "!";
+        std::cout << "\n  Ai castigat cu: " << maxBalance << "$ in cont!";
+        std::cout << "\n==========================================";
+    }
 }
 
 void Game::payToEscapeJail() {
