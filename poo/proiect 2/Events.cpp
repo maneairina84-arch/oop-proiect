@@ -6,8 +6,8 @@
 
 #include "Space.h"
 
-Events:: Events(): Space(-1, "unknown event"), tipSansa(-1), newSum(0){}
-Events::Events(int id, std::string nume, std::string tipSansa, long newSum): Space(id, name) {
+Events:: Events(): Space(-1, "unknown event"), tipSansa(""), newSum(0){}
+Events::Events(int id, std::string name, std::string tipSansa, long newSum): Space(id, name) {
     this->tipSansa=tipSansa;
     this->newSum=newSum;
 }
@@ -37,10 +37,13 @@ long Events::getNewSum() const {
 
 //setters
 void Events::setNewSum(long newSum) {
-    this->newSum=suma;
+    this->newSum=newSum;
 }
 void Events::setTipSansa(std::string tipSansa) {
-    this->tipSansa=tip;
+    this->tipSansa=tipSansa;
 }
 
 //op si fct netriviale
+
+void Events::updatePosition(Player& p, int pasi) {
+}

@@ -7,12 +7,12 @@
 #include <string>
 #include<iostream>
 #include<vector>
-#include<Space.h>
+#include"Space.h"
 
 #include "Space.h"
 
 
-class Utilities: public Space {
+class Utilities: virtual public Space {
 protected:
     int multiplicator;
     int idProprietar;
@@ -23,7 +23,7 @@ public:
     Utilities& operator=(const Utilities& obj);
     virtual ~Utilities()=default;
 
-    Space* clone() const;
+    Space* clone() const override;
 
     //getters
     int getMultiplicator() const;
@@ -36,7 +36,7 @@ public:
     friend std:: ostream& operator<<(std:: ostream& os, const Utilities& obj);
     friend std:: istream& operator> (std::istream& is, Utilities& obj);
 
-
+    void updatePosition(Player& p, int pasi) override;
 
 };
 

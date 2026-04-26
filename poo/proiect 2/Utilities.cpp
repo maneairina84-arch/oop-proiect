@@ -11,7 +11,7 @@ Utilities:: Utilities(int id, std::string name, int multiplicator): Space(id,nam
     this->multiplicator = multiplicator;
     this->idProprietar = id;
 }
-Utilities:: Utilities(conts Utilities obj): Space(obj), multiplicator(obj,multiplicator), idProprietar(obj.idProprietar) {}
+Utilities:: Utilities(const Utilities& obj): Space(obj), multiplicator(obj.multiplicator), idProprietar(obj.idProprietar) {}
 Utilities& Utilities::operator = (const Utilities& obj) {
     if (this != &obj) {
         Space :: operator =(obj);
@@ -37,8 +37,11 @@ int Utilities::getIdProprietar() const {
 void Utilities::setMultiplicator(int multiplicator) {
     this->multiplicator = multiplicator;
 }
-int Utilities::getIdProprietar() const {
-    return this_>idProprietar= id;
+void Utilities::setIdProprietar(int id) {
+    this->idProprietar = id;
 }
 
 //OPERATORI PLUS FCT
+
+void Utilities::updatePosition(Player& p, int pasi) {
+}

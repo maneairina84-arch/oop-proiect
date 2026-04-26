@@ -13,8 +13,8 @@
 std::string Game::getPlayerAtPos(int pos) const {
     std::string s = "";
     for (size_t i = 0; i < players.size(); ++i) {
-        if (players[i].getCurrentPosition() == pos) {
-            s += "P" + std::to_string(players[i].getId());
+        if (players[i]->getCurrentPosition() == pos) {
+            s += "P" + std::to_string(players[i]->getId());
         }
     }
     while (s.length() < 5) s += " "; //aliniere la 5 caract
@@ -34,7 +34,7 @@ Game:: Game(): currentPlayerIndex(0), gameOver(false) {
 Game:: Game(int nrJucatori):currentPlayerIndex(0), gameOver(false) {
     std::srand(static_cast<unsigned int>(std::time(nullptr)));
     for (int i = 0; i < nrJucatori; i++) {
-        players.push_back(Player("Jucator"+ std::string (i+1),1500));
+        players.push_back(new Player("Jucator"+ std::to_string (i+1),1500));
     }
 }
 Game::Game(const Game& obj) {
@@ -85,7 +85,7 @@ void Game::initGame() {
     board.push_back(new Property(1, "Vitan", 100, 50));
     board.push_back(new Property(2, "Cotroceni", 120, 60));
     board.push_back(new Specials(3, "Gara", 500, 100, 2, "Transport"));
-    board.push_back(new Utilities(4, "Apa", 150, 70));
+    board.push_back(new Utilities(4, "Apa", 7));
     board.push_back(new Property(5, "Gaz", 150, 70));
     board.push_back(new Events(6, "Vizita", "Inchisoare", 0));
     board.push_back(new Property(7, "Magheru", 300, 150));
@@ -171,7 +171,7 @@ void Game::drawBoard() const {
 //operatori
 std::ostream& operator<< (std::ostream& os, const Game& obj) {
     obj.drawBoard();
-    os << "\n>>> RANDUL LUI: " << obj.players[obj.currentPlayerIndex].getName() << " <<<\n";
+    os << "\n>>> RANDUL LUI: " << obj.players[obj.currentPlayerIndex]->getName() << " <<<\n";
     return os;
 }
 
@@ -184,23 +184,23 @@ std::istream& operator>>(std::istream& is, Game& obj) {
         std::string n;
         std::cout << "Nume Jucator " << i+1 << ": ";
         is >> n;
-        obj.players.push_back(Player(n, 1500));
+        obj.players.push_back(new Player(n, 1500));
     }
     return is;
 }
 
 void Game:: playTurn() {
-    Player& p=players[currentPlayerIndex];
+    Player* p=players[currentPlayerIndex];
     int pasi=displayDice();
-    int old= p.getCurrentPosition();
+    int old= p->getCurrentPosition();
     int now= (old+pasi)%BOARD_SIZE;
 
     if (now<old) {
-        p.setMoneyBalance(p.getMoneyBalance()+200);
+        p->setMoneyBalance(p->getMoneyBalance()+200);
     }
-    p.setCurrentPosition(now);
+    p->setCurrentPosition(now);
 
-    board[now]->updatePosition(p, pasi);
+    board[now]->updatePosition(*p, pasi);
     currentPlayerIndex=(currentPlayerIndex+1)%players.size();
 }
 
@@ -219,7 +219,7 @@ void Game:: startGame() {
         int n= getNrPlayers();
         for (int i=0; i<n; i++) {
             std::cout<< *this;
-            this-> playTurn;
+            this-> playTurn();
 
             std::cout << "Apasa Enter pentru a trece la urmatorul jucator!";
             std::cin.ignore(1000, '\n');
@@ -234,7 +234,7 @@ void Game::announceWinner() {
 
     int winnerIdx =0;
     for (size_t i=0; i<players.size(); i++) {
-        if  (players[i].getMoneyBalance()> player[winnerIdx].getMoneyBalance()) {
+        if  (players[i]->getMoneyBalance()> players[winnerIdx]->getMoneyBalance()) {
             winnerIdx = i;
         }
     }
@@ -254,8 +254,8 @@ void Game::announceWinner() {
     std::cout << "\n==========================================";
     std::cout << "\n          FINALUL JOCULUI";
     std::cout << "\n==========================================";
-    std::cout << "\n  FELICITARI, " << players[winnerIndex].getName() << "!";
-    std::cout << "\n  Ai castigat cu: " << players[winnerIndex].getMoneyBalance() << "$ in cont!";
+    std::cout << "\n  FELICITARI, " << players[winnerIdx]->getName() << "!";
+    std::cout << "\n  Ai castigat cu: " << players[winnerIdx]->getMoneyBalance() << "$ in cont!";
     std::cout << "\n==========================================";
 
 }

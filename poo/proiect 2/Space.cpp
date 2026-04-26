@@ -6,10 +6,7 @@
 
 Space:: Space(): id(-1), name("unkown") {
 }
-Space:: Space(int id, std:: string name) {
-    this-> id=id;
-    this-> name=name;
-}
+Space:: Space(int id, std:: string name): id(id), name(name) {}
 Space:: Space(const Space& obj): id(obj.id), name(obj.name) {}
 Space& Space::operator=(const Space& obj) {
     if (this != &obj) {
@@ -27,3 +24,6 @@ std::string Space:: getName() const {
 }
 
 //operatorii
+
+void Space::updatePosition(Player& p, int pasi) {
+}

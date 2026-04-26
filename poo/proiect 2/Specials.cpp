@@ -9,9 +9,8 @@
 #include "Utilities.h"
 
 Specials:: Specials(): Space (-1, "s basic"), Property(), Utilities(), special("Fara detalii"){}
-Specials:: Specials(int id, std::string name, long chirie, long pret, int multiplicator, std:: string special): Space(id, name), Property(id, name, pret, chirie), Utilities(id, name, multiplicator, special) {
-    this-> special= special;
-}
+// Constructorul ar trebui să arate așa (verifică ordinea argumentelor):
+Specials::Specials(int id, std::string name, long chirie, long pret, int multiplicator, std::string special): Space(id, name), Property(id, name, chirie, pret), Utilities(id, name, multiplicator), special(special) {}
 Specials:: Specials(const Specials& obj): Space(obj), Property(obj), Utilities(obj), special(obj.special){}
 Specials& Specials:: operator=(const Specials& obj) {
     if (this!=&obj) {
@@ -35,3 +34,6 @@ void Specials::setSpecial(std::string special) {
 }
 
 //operatori plus functii netriviale
+
+void Specials::updatePosition(Player& p, int pasi) {
+}

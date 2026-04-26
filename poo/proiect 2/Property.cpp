@@ -19,7 +19,7 @@ Property:: Property(const Property& obj): Space(obj) {
     this->idProprietar = obj.idProprietar;
 }
 Property& Property::operator=( const Property& obj) {
-    if (this!=obj) {
+    if (this!=&obj) {
         Space:: operator=(obj);
         this->chirie = obj.chirie;
         this->pret = obj.pret;
@@ -39,7 +39,7 @@ long Property:: getChirie() const {
 long Property:: getPret() const {
     return pret;
 }
-long Property::getIdProprietar() const {
+int Property::getIdProprietar() const {
     return idProprietar;
 }
 
@@ -50,4 +50,6 @@ void Property::setIdProprietar(int id) {
 
 //operatori
 
+void Property::updatePosition(Player& p, int pasi) {
+}
 

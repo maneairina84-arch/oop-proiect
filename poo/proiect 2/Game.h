@@ -7,12 +7,12 @@
 #include <string>
 #include<iostream>
 #include<vector>
-#include<Space.h>
-#include<Property.h>
-#include<Utilities.h>
-#include<Specials.h>
-#include<Events.h>
-#include<Player.h>
+#include"Space.h"
+#include"Property.h"
+#include"Utilities.h"
+#include"Specials.h"
+#include"Events.h"
+#include"Player.h"
 
 
 #include "Player.h"
@@ -41,7 +41,7 @@ public:
     void initGame();
     int displayDice();
     void drawBoard() const;
-    void playTurn;
+    void playTurn();
     void startGame();
     void announceWinner();
 

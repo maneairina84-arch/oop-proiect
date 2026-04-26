@@ -7,10 +7,10 @@
 #include<iostream>
 #include<string>
 #include<vector>
-#include<Space.h>
+#include"Space.h"
 
 
-class Property: public Space{
+class Property: virtual public Space{
 protected:
     long chirie;
     long pret;
@@ -23,7 +23,7 @@ public:
     virtual ~Property()=default;
 
 
-    Space* clone() const;
+    Space* clone() const override;
 
     //getters
     long getPret() const;
@@ -36,6 +36,7 @@ public:
     friend std::ostream& operator<<(std:: ostream & os, const Property& obj);
     friend std:: istream& operator>>(std::istream& is, Property& obj);
 
+    void updatePosition(Player& p, int pasi) override;
 
 
 

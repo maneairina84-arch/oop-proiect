@@ -7,7 +7,7 @@
 #include <string>
 #include<iostream>
 #include<vector>
-#include<Space.h>
+#include"Space.h"
 
 
 class Events: public Space {
@@ -20,7 +20,7 @@ public:
     virtual Events& operator=(const Events& obj);
     virtual ~Events() = default;
 
-    Space* clone() const;
+    Space* clone() const override;
 
     //geters
     std::string getTipSansa() const;
@@ -33,6 +33,8 @@ public:
     friend std::ostream& operator<<(std::ostream& os, const Events& obj);
     friend std:: istream& operator >>(std::istream& is, Events& obj);
 
+
+    void updatePosition(Player& p, int pasi) override;
 };
 
 
