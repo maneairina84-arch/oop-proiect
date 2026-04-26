@@ -44,6 +44,7 @@ public:
     void playTurn();
     void startGame();
     void announceWinner();
+    void payToEscapeJail();
 
 };
 

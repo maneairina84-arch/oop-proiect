@@ -86,13 +86,13 @@ void Game::initGame() {
     board.push_back(new Property(2, "Cotroceni", 120, 60));
     board.push_back(new Specials(3, "Gara", 500, 100, 2, "Transport"));
     board.push_back(new Utilities(4, "Apa", 7));
-    board.push_back(new Property(5, "Gaz", 150, 70));
+    board.push_back(new Property(5, "PBT", 150, 70));
     board.push_back(new Events(6, "Vizita", "Inchisoare", 0));
     board.push_back(new Property(7, "Magheru", 300, 150));
     board.push_back(new Property(8, "Unirii", 350, 180));
     board.push_back(new Specials(9, "Port", 500, 100, 2, "Transport"));
-    board.push_back(new Property(10, "PBT", 400, 200));
-    board.push_back(new Events(11, "Chest", "Noroc", 50));
+    board.push_back(new Events(10, "Jail", "Inchisoare", 0));
+    board.push_back(new Events(11, "Chest", "Noroc?", 50));
 }
 
 
@@ -191,7 +191,13 @@ std::istream& operator>>(std::istream& is, Game& obj) {
 
 void Game:: playTurn() {
     Player* p=players[currentPlayerIndex];
-    int pasi=displayDice();
+   std:: cout << "Jucatorul arunca zarurile...\n";
+    int z1=displayDice();
+    int z2=displayDice();
+    int sumaTotala=z1+z2;
+    std:: cout << "Jucatorul a aruncat zarurile...\n";
+    std::cout << "Suma totala a zarurilor este: "<<sumaTotala<<"\n";
+    int pasi=sumaTotala;
     int old= p->getCurrentPosition();
     int now= (old+pasi)%BOARD_SIZE;
 
@@ -250,7 +256,6 @@ void Game::announceWinner() {
     std::cout << "         _.' '._   " << std::endl;
     std::cout << "        `-------`  " << std::endl;
 
-    // 3. Mesajul de felicitare
     std::cout << "\n==========================================";
     std::cout << "\n          FINALUL JOCULUI";
     std::cout << "\n==========================================";
@@ -260,3 +265,25 @@ void Game::announceWinner() {
 
 }
 
+void Game::payToEscapeJail() {
+    Player* p=players[currentPlayerIndex];
+    if (p->getInJail()) {
+        std::cout << p->getName() << ", vrei sa platesti 50 RON? (1-DA, 2-NU): ";
+        int optiune;
+        std::cin >> optiune;
+
+        if (optiune == 1) {
+            bool plataReusita = p->payBail();
+
+            if (plataReusita) {
+                std::cout << "Poti sa dai cu zarul acum!";
+            } else {
+                std::cout << "Ramai in inchisoare tura asta." << std::endl;
+                p->noRoundsInJail();
+                return;
+            }
+        } else {
+            p->noRoundsInJail();
+            return;
+        }
+    }

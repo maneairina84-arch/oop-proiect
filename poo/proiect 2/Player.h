@@ -44,7 +44,9 @@ public:
     friend std:: ostream& operator<< (std:: ostream& os, const Player& obj);
     friend std:: iostream& operator>>(std:: iostream& is, Player& obj);
 
-
+    void noRoundsInJail(); // Scade automat rundeDeStat pana la 0
+    void sendToJail();
+    bool payBail();
 
 };
 

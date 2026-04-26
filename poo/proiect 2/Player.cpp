@@ -78,3 +78,36 @@ void Player:: setInJail(bool inJail) {
 }
 
 //serializare
+
+void Player::sendToJail() {
+    this->inJail = true;
+    this->rundeDeStat = 3;
+    std::cout << this->name << " a fost trimis la inchisoare!";
+}
+void Player::noRoundsInJail() {
+    if (this->inJail) {
+        if (this->rundeDeStat > 0) {
+            this->rundeDeStat--;
+            std::cout<< this->name << " mai are de stat " << this->rundeDeStat << " runde.";
+        }
+        if (this->rundeDeStat == 0) {
+            this->inJail = false;
+            std::cout <<this->name << " a fost eliberat!" ;
+        }
+    }
+}
+
+bool Player::payBail() {
+
+    if (this->moneyBalance >= 50) {
+        this->moneyBalance -= 50;
+        this->inJail = false;
+        this->rundeDeStat = 0;
+
+        std::cout << this->name << " a platit taxa fixa de " << TAXA_FIXA << " $ a fost eliberat!";
+        return true;
+    } else {
+        std::cout << this->name << " nu are 50 $ pentru a iesi din inchisoare!";
+        return false;
+    }
+}
