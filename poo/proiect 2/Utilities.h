@@ -23,6 +23,8 @@ public:
     Utilities& operator=(const Utilities& obj);
     virtual ~Utilities()=default;
 
+    Space* clone() const;
+
     //getters
     int getMultiplicator() const;
     int getIdProprietar() const;

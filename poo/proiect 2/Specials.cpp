@@ -22,6 +22,10 @@ Specials& Specials:: operator=(const Specials& obj) {
     return *this;
 }
 
+//polimorfism
+Space* Specials::clone() const {
+    return new Specials(*this);
+}
 //getter
 std::string Specials::getSpecial() const {
     return special;

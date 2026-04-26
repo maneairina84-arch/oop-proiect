@@ -22,6 +22,10 @@ Events& Events::operator=(const Events& obj) {
     return *this;
 }
 
+//polimorfism
+Space* Events::clone() const {
+    return new Events(*this);
+}
 
 //getters
 std::string Events::getTipSansa() const {

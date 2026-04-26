@@ -20,6 +20,8 @@ public:
     virtual Events& operator=(const Events& obj);
     virtual ~Events() = default;
 
+    Space* clone() const;
+
     //geters
     std::string getTipSansa() const;
     long getNewSum() const;

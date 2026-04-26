@@ -9,6 +9,7 @@
 #include<vector>
 #include<Space.h>
 
+
 class Property: public Space{
 protected:
     long chirie;
@@ -20,6 +21,9 @@ public:
     Property(const Property& obj);
     Property& operator=(const Property& obj);
     virtual ~Property()=default;
+
+
+    Space* clone() const;
 
     //getters
     long getPret() const;

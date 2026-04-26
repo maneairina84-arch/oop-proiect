@@ -20,6 +20,9 @@ public:
     Space& operator=(const Space& obj);
     virtual ~Space() = default;
 
+    virtual Space* clone() const = 0;
+    virtual void updatePosition(Player& p, int pasi)=0;
+
 
     //getters
     int getId() const;

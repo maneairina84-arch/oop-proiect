@@ -14,13 +14,18 @@
 #include<Events.h>
 #include<Player.h>
 
+
 #include "Player.h"
 
 class Game {
+    static const int BOARD_SIZE=12;
     std::vector<Space*> board;
     std:: vector<Player*> players;
     int currentPlayerIndex;
     bool gameOver;
+
+    std::string getPlayerAtPos(int pos) const;
+    std::string getNameFixed(int pos) const;
 
 public:
     Game();
@@ -31,6 +36,14 @@ public:
 
     friend std::ostream& operator<<(std::ostream& os, const Game& obj);
     friend std::istream& operator>>(std::istream& is, Game& obj);
+
+    int getNrPlayers() const;
+    void initGame();
+    int displayDice();
+    void drawBoard() const;
+    void playTurn;
+    void startGame();
+    void announceWinner();
 
 };
 

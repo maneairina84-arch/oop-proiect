@@ -20,6 +20,8 @@ public:
     Specials& operator=(const Specials& obj);
     virtual ~Specials()=default;
 
+    Space* clone() const;
+
     //getter
     std::string getSpecial() const;
     //setter

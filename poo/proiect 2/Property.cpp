@@ -28,6 +28,10 @@ Property& Property::operator=( const Property& obj) {
     return *this;
 }
 
+Space* Property::clone() const {
+    return new Property(*this);
+}
+
 //getters
 long Property:: getChirie() const {
     return chirie;

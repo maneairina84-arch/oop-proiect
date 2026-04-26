@@ -20,6 +20,10 @@ Utilities& Utilities::operator = (const Utilities& obj) {
     }
     return *this;
 }
+//polimorfism
+Space* Utilities::clone() const {
+    return new Utilities(*this);
+}
 
 //getters
 int Utilities::getMultiplicator() const {
