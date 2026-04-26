@@ -44,7 +44,7 @@ void Events::setTipSansa(std::string tipSansa) {
     this->tipSansa=tipSansa;
 }
 
-//op si fct netriviale
+//op
 std::ostream& operator<<(std::ostream& os, const Events& obj) {
     os << (Space&)obj;
     os << " Tip Eveniment: " << obj.tipSansa << " | Suma: " << obj.newSum;

@@ -77,7 +77,21 @@ void Player:: setInJail(bool inJail) {
     this->inJail=inJail;
 }
 
-//serializare
+//operatori
+std::ostream& operator<<(std::ostream& os, const Player& obj) {
+    os << obj.getName();
+    return os;
+}
+
+std::istream& operator>>(std::istream& is, Player& obj) {
+    std::string nume;
+    if (is >> nume) {
+        obj.setName(nume);
+        obj.setMoneyBalance(1500);
+        obj.setCurrentPosition(0);
+    }
+    return is;
+}
 
 void Player::sendToJail() {
     this->inJail = true;

@@ -35,7 +35,31 @@ void Specials::setSpecial(std::string special) {
     this->special=special;
 }
 
-//operatori plus functii netriviale
+//operatori
+std::ostream& operator<<(std::ostream& os, const Specials& obj) {
+    os << obj.getName() << " [" << obj.getSpecial() << "]";
+    return os;
+}
+
+std::istream& operator>>(std::istream& is, Specials& obj) {
+    long pret, chirie;
+    int multiplicator;
+    std::string spec;
+
+    if (is >> pret >> chirie >> multiplicator) {
+        obj.Property::setPret(pret);
+        obj.Property::setChirie(chirie);
+        obj.Utilities::setMultiplicator(multiplicator);
+
+        obj.Property::setIdProprietar(-1);
+        obj.Utilities::setIdProprietar(-1);
+
+        is.ignore();
+        std::getline(is, spec);
+        obj.setSpecial(spec);
+    }
+    return is;
+}
 
 void Specials::updatePosition(Player& p, std::vector<Player*>& allPlayers, int pasi) {
     std::cout << "\n AI AJUNS PE UN LOC  SPECIAL: " << this->getName() << std::endl;

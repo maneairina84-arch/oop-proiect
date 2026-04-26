@@ -45,6 +45,8 @@ public:
     void startGame();
     void announceWinner();
     void payToEscapeJail();
+    void saveGame(const std::string& filename) const;
+    void loadGame(const std::string& filename);
 
 };
 

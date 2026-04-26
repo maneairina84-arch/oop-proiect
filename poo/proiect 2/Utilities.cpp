@@ -41,7 +41,20 @@ void Utilities::setIdProprietar(int id) {
     this->idProprietar = id;
 }
 
-//OPERATORI PLUS FCT
+//operatori
+std::ostream& operator<<(std::ostream& os, const Utilities& obj) {
+    os << obj.getName() << " [Util]";
+    return os;
+}
+
+std::istream& operator>>(std::istream& is, Utilities& obj) {
+    int multiplicator;
+    if (is>>multiplicator) {
+        obj.setMultiplicator(multiplicator);
+        obj.setIdProprietar(-1);
+    }
+    return is;
+}
 
 void Utilities::updatePosition(Player& p, std::vector<Player*>& allPlayers, int pasi) {
     if (Utilities::idProprietar == -1) {

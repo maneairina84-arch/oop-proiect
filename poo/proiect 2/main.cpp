@@ -3,10 +3,11 @@
 //
 #include"Game.h"
 #include"Player.h"
+#include"Menu.h"
 
 
 int main() {
-    Game monopoly;
-    monopoly.startGame();
+    Menu myMenu;
+    myMenu.run();
     return 0;
 }

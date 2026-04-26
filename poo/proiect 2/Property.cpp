@@ -47,6 +47,12 @@ int Property::getIdProprietar() const {
 void Property::setIdProprietar(int id) {
     this->idProprietar = id;
 }
+void Property::setChirie(long chirie) {
+    this->chirie = chirie;
+}
+void Property::setPret(long pret) {
+    this->pret = pret;
+}
 
 
 void Property::updatePosition(Player& p, std::vector<Player*>& allPlayers, int pasi) {
@@ -88,3 +94,13 @@ void Property::updatePosition(Player& p, std::vector<Player*>& allPlayers, int p
     }
 }
     //operatori
+std::ostream& operator<<(std::ostream& os, const Property& obj) {
+    os << obj.getName() << " (ID: " << obj.getId() << ")";
+    return os;
+}
+
+std::istream& operator>>(std::istream& is, Property& obj) {
+    is >> obj.pret >> obj.chirie;
+    obj.idProprietar = -1;
+    return is;
+}

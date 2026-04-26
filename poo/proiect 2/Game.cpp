@@ -319,3 +319,14 @@ void Game::payToEscapeJail() {
         }
     }
 }
+
+//serializare
+void Game:: saveGame(const std::string& filename) const {
+    std::ofstream fout(filename);
+
+    if (!fout.is_open()) {
+        throw std::runtime_error("Nu s-a putut deschide fisierul pentru salvare!");
+    }
+    fout << players.size() << "\n";
+}
+

@@ -32,6 +32,8 @@ public:
 
     //setters
     void setIdProprietar(int id);
+    void setPret(long pret);
+    void setChirie(long chirie);
 
     friend std::ostream& operator<<(std:: ostream & os, const Property& obj);
     friend std:: istream& operator>>(std::istream& is, Property& obj);
